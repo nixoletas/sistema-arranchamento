@@ -1,11 +1,19 @@
 <?php
 
 error_reporting(0);
+session_start();
 
 include "../../controllers/config/conexao.php";
 
 if(!isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
 	echo "Exception: #".strtoupper( substr( md5(rand()), 0, 20));;
+	die();
+}
+
+// Arranchar (Outra OM) é restrito ao Administrador (mesma regra do card, hoje desativado, em rancho/home.php).
+if (empty($_SESSION['usuario']['id']) || (int)($_SESSION['usuario']['tipo'] ?? 0) !== 1) {
+	http_response_code(401);
+	echo '{"error":"Acesso negado. Faça login novamente."}';
 	die();
 }
 

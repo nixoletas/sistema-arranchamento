@@ -470,3 +470,11 @@ composer.lock
 *.css.map
 *.sass.map
 *.scss.map
+# Log de erros do PHP (pode conter dados de uso)
+/logs/
+##### Sistema de Arranchamento: backups e dumps locais (podem conter dados pessoais)
+/backup/*.sql.gz
+*.backup
+*.backup-*
+*.bak-*
+docker-compose.yml.backup

@@ -10,8 +10,17 @@ if(!isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !strtolower($_SERVER['HTTP_X_REQ
 	die();
 }
 
+// Gerenciar militares: só usuários logados no painel. O Administrador mexe em todas as Cias;
+// o Operador (furriel) só na própria Cia — a mesma regra que a tela já aplica.
+if (empty($_SESSION['usuario']['id'])) {
+	http_response_code(401);
+	echo '{"error":"Acesso negado. Faça login novamente."}';
+	die();
+}
+
 $tp_usuario = $_SESSION['usuario']['tipo'];
 $om_usuario = $_SESSION['usuario']['om'];
+$so_propria_cia = (int)$tp_usuario !== 1;
 
 
 if (isset($_POST['opt']) && !empty($_POST['opt'])) {
@@ -21,10 +30,14 @@ if (isset($_POST['opt']) && !empty($_POST['opt'])) {
 		$ident_militar = isset($_POST['ident_militar']) ? $_POST['ident_militar'] : null;
 
 		if($id && $ident_militar){
-			
-			$con = $cnt->prepare("DELETE FROM cad_militar WHERE ident_militar = :ident_militar AND id = :id");
+
+			$con = $cnt->prepare("DELETE FROM cad_militar WHERE ident_militar = :ident_militar AND id = :id"
+				. ($so_propria_cia ? " AND om_id = :om_usuario" : ""));
 			$con->bindValue(':ident_militar', $ident_militar, PDO::PARAM_STR);
 			$con->bindValue(':id', $id, PDO::PARAM_INT);
+			if ($so_propria_cia) {
+				$con->bindValue(':om_usuario', $om_usuario, PDO::PARAM_INT);
+			}
 			$con->execute();
 			$total = $con->rowCount();
 			if($total){
@@ -139,6 +152,10 @@ if (isset($_POST['formData']) && !empty($_POST['formData'])) {
 		echo '{"error":"Selecione alguma OM!"}';
 		die();
 	}
+	if($so_propria_cia && (int)$dados['om_militar'] !== (int)$om_usuario){
+		echo '{"error":"Você só pode cadastrar militares da sua Cia!"}';
+		die();
+	}
 
 	switch ($dados['opt']) {
 		case 'add':
@@ -170,8 +187,12 @@ if (isset($_POST['formData']) && !empty($_POST['formData'])) {
 		break;
 
 		case 'edit':
-		$con = $cnt->prepare("UPDATE cad_militar SET nome = :nome_mil, nome_guerra = :nome_guerra, ident_militar = :identidade, posto = :pg_militar, om_id = :om_id WHERE id = :id_mil");
+		$con = $cnt->prepare("UPDATE cad_militar SET nome = :nome_mil, nome_guerra = :nome_guerra, ident_militar = :identidade, posto = :pg_militar, om_id = :om_id WHERE id = :id_mil"
+			. ($so_propria_cia ? " AND om_id = :om_usuario" : ""));
 		$con->bindValue(':id_mil', $dados['id_mil'] , PDO::PARAM_INT);
+		if ($so_propria_cia) {
+			$con->bindValue(':om_usuario', $om_usuario, PDO::PARAM_INT);
+		}
 		$con->bindValue(':nome_mil', $dados['nome_mil'] , PDO::PARAM_STR);
 		$con->bindValue(':nome_guerra', $dados['nome_guerra'], PDO::PARAM_STR);
 		$con->bindValue(':identidade',  $dados['identidade'], PDO::PARAM_STR);

@@ -19,21 +19,22 @@ if (isset($_POST['formData']) && !empty($_POST['formData'])) {
 	if($usuario || $senha){
 
 		require_once("../../controllers/config/conexao.php");
-		$con = $cnt->prepare('SELECT * FROM usuarios WHERE (usuario = :usuario AND senha = :senha)');
-		$con->bindParam(':usuario', $usuario, PDO::PARAM_STR);
-		$con->bindParam(':senha', md5($senha));
-		$con->execute();
-		$total = $con->rowCount();
+		require_once("../../controllers/senha.php");
 
-		if($total){
-			$res = $con->fetch(PDO::FETCH_ASSOC);
+		$con = $cnt->prepare('SELECT * FROM usuarios WHERE usuario = :usuario');
+		$con->bindParam(':usuario', $usuario, PDO::PARAM_STR);
+		$con->execute();
+		$res = $con->fetch(PDO::FETCH_ASSOC);
+
+		if($res && senha_confere($senha, $res['senha'])){
+			senha_migrar_se_preciso($cnt, $res['id'], $senha, $res['senha']);
+
 			$_SESSION['usuario']['id'] = $res['id'];
 			$_SESSION['usuario']['login'] = $res['usuario'];
 			$_SESSION['usuario']['om'] = $res['om'];
 			$_SESSION['usuario']['tipo'] = $res['tipo'];
 			echo '{"url":"home.php"}';
-		}
-		if(!$total){
+		} else {
 			echo '{"erro":"<p style=\"font-size:13px;\" class=\"alert alert-danger\">Usuário ou Senha Incorretos <i class=\"fa fa-exclamation\"></i></p>"}';
 		}
 	}

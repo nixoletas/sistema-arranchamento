@@ -27,7 +27,7 @@ CREATE TABLE `auditoria` (
   `id_registro` int(11) DEFAULT NULL,
   `data_hora` varchar(45) DEFAULT NULL,
   `operador` varchar(45) DEFAULT NULL,
-  `agent` varchar(100) DEFAULT NULL,
+  `agent` varchar(255) DEFAULT NULL,
   `ip` varchar(45) DEFAULT NULL,
   `acao` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -290,3 +290,98 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2024-11-04 21:44:56
+
+
+-- Módulo Vale de Rações (Vale Diário, Vale Total, Nota para Boletim e Mapa de Gêneros)
+-- Tabelas do módulo Vale de Rações (Vale Diário / Vale Total / Nota para Boletim / Mapa de Gêneros).
+-- Todas com CREATE TABLE IF NOT EXISTS: pode ser executado mais de uma vez sem efeito colateral.
+
+-- Correções manuais do Vale Diário. Só existe linha quando o aprovisionador mudou o número calculado pelo sistema.
+CREATE TABLE IF NOT EXISTS `vale_ajuste` (
+  `data` date NOT NULL,
+  `cia` int NOT NULL,
+  `tp` tinyint NOT NULL COMMENT '1=café 2=almoço 3=jantar',
+  `cat` varchar(3) NOT NULL COMMENT 'of, sgt ou cb',
+  `valor` int NOT NULL,
+  `usuario` varchar(100) DEFAULT NULL,
+  `atualizado_em` datetime NOT NULL,
+  PRIMARY KEY (`data`,`cia`,`tp`,`cat`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Dados do dia que não vêm do arranchamento: Gu Sv, alimentados de outras OM, complementos, nº da nota, sobras.
+CREATE TABLE IF NOT EXISTS `vale_dia` (
+  `data` date NOT NULL,
+  `gu_of` int NOT NULL DEFAULT 0,
+  `gu_sgt` int NOT NULL DEFAULT 0,
+  `gu_cb` int NOT NULL DEFAULT 0,
+  `outras_of` int NOT NULL DEFAULT 0,
+  `outras_sgt` int NOT NULL DEFAULT 0,
+  `outras_cb` int NOT NULL DEFAULT 0,
+  `outras_cafe` int NOT NULL DEFAULT 0,
+  `outras_almoco` int NOT NULL DEFAULT 0,
+  `outras_jantar` int NOT NULL DEFAULT 0,
+  `c_hosp` int NOT NULL DEFAULT 0,
+  `c_esc` int NOT NULL DEFAULT 0,
+  `cf60` int NOT NULL DEFAULT 0,
+  `nota_nr` varchar(20) DEFAULT NULL,
+  `sobras` varchar(255) DEFAULT NULL,
+  `usuario` varchar(100) DEFAULT NULL,
+  `atualizado_em` datetime NOT NULL,
+  PRIMARY KEY (`data`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Artigos do Mapa de Gêneros. base: cafe_leite = C/2+((A+J)/4) ; cafe = só café ; refeicao = (A+J)/2.
+CREATE TABLE IF NOT EXISTS `vale_artigos` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `ordem` int NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `tabelar` decimal(6,3) NOT NULL,
+  `unidade` varchar(5) NOT NULL DEFAULT 'Kg',
+  `base` varchar(12) NOT NULL DEFAULT 'refeicao',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Quantidade efetivamente fornecida e observação, por dia e artigo.
+CREATE TABLE IF NOT EXISTS `vale_fornecido` (
+  `data` date NOT NULL,
+  `artigo_id` int NOT NULL,
+  `fornecida` decimal(10,2) DEFAULT NULL,
+  `obs` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`data`,`artigo_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `vale_config` (
+  `chave` varchar(40) NOT NULL,
+  `valor` varchar(255) NOT NULL,
+  PRIMARY KEY (`chave`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Dados iniciais (valores da planilha de aprovisionamento). INSERT IGNORE: não sobrescreve o que já foi alterado.
+INSERT IGNORE INTO `vale_config` (`chave`,`valor`) VALUES
+  ('om_nome','53° BATALHÃO DE INFANTARIA DE SELVA'),
+  ('om_sigla','53° BIS'),
+  ('aprovisionador','NOME DO APROVISIONADOR – POSTO'),
+  ('local','Itaituba-PA');
+
+INSERT INTO `vale_artigos` (`id`,`ordem`,`nome`,`tabelar`,`unidade`,`base`)
+SELECT * FROM (
+  SELECT 1 id, 1 ordem, 'AÇÚCAR' nome, 0.060 tabelar, 'Kg' unidade, 'cafe_leite' base UNION ALL
+  SELECT 2, 2, 'ARROZ BENEFICIADO', 0.120, 'Kg', 'refeicao' UNION ALL
+  SELECT 3, 3, 'CAFÉ TORRADO', 0.020, 'Kg', 'cafe' UNION ALL
+  SELECT 4, 4, 'CARNE BOVINA DESOSSADA CONGELADA', 0.480, 'Kg', 'refeicao' UNION ALL
+  SELECT 5, 5, 'CARNE SUÍNA DESOSSADA CONGELADA', 0.480, 'Kg', 'refeicao' UNION ALL
+  SELECT 6, 6, 'MACARRÃO', 0.100, 'Kg', 'refeicao' UNION ALL
+  SELECT 7, 7, 'FEIJÃO COMUM', 0.120, 'Kg', 'refeicao' UNION ALL
+  SELECT 8, 8, 'COXA COM SOBRE COXA DE FRANGO CONGELADA', 0.560, 'Kg', 'refeicao' UNION ALL
+  SELECT 9, 9, 'FILÉ DE PEITO DE FRANGO CONGELADO', 0.440, 'Kg', 'refeicao' UNION ALL
+  SELECT 10, 10, 'LEITE EM PÓ INSTANTÂNEO', 0.080, 'Kg', 'cafe_leite' UNION ALL
+  SELECT 11, 11, 'MARGARINA', 0.020, 'Kg', 'cafe' UNION ALL
+  SELECT 12, 12, 'ÓLEO SOJA/MILHO REFINADO', 0.030, 'l', 'refeicao' UNION ALL
+  SELECT 13, 13, 'SASSAMI DE FRANGO CONGELADO', 0.440, 'Kg', 'refeicao' UNION ALL
+  SELECT 14, 14, 'EMPANADO DE FRANGO CONGELADO - STEAK', 0.300, 'Kg', 'refeicao' UNION ALL
+  SELECT 15, 15, 'CARNE SUÍNA COM OSSO CONGELADA', 0.560, 'Kg', 'refeicao' UNION ALL
+  SELECT 16, 16, 'PEIXE CONGELADO EM POSTA', 0.560, 'Kg', 'refeicao' UNION ALL
+  SELECT 17, 17, 'CARNE BOVINA PORCIONADA CONGELADA', 0.400, 'Kg', 'refeicao' UNION ALL
+  SELECT 18, 18, 'PEIXE CONGELADO FILÉ', 0.460, 'Kg', 'refeicao'
+) novos
+WHERE NOT EXISTS (SELECT 1 FROM `vale_artigos`);

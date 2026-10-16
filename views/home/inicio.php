@@ -1,9 +1,36 @@
+<style>
+.datepicker td.arranchado-bloqueado {
+    background-color: #8a8a8a !important;
+    color: #ffffff !important;
+    border-radius: 4px;
+    cursor: not-allowed;
+}
+#loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(255,255,255,0.75);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+#loading-overlay .box {
+    text-align: center;
+    color: #337ab7;
+}
+</style>
+
 <div class="well well-sm">
     <p <?php echo "id='".$usuario_logado['posto_id']."'";?>><strong>P/G: </strong><?php echo isset($usuario_logado['posto_desc']) ? $usuario_logado['posto_desc'] : "Anônimo"; ?></p>
     <p><strong>Nome Guerra:</strong> <?php echo isset($usuario_logado['nome_guerra']) ? $usuario_logado['nome_guerra'] : "Anônimo"; ?></p>
     <p class="ident" <?php echo "id='".$usuario_logado['ident_militar']."'";?>><b>CPF:</b> <?php echo $usuario_logado['ident_militar']; ?></p>
     <p class="om" <?php echo "id='".$usuario_logado['companhia_id']."'";?>><b>Cia: </b><?php echo isset($usuario_logado['companhia_desc']) ? $usuario_logado['companhia_desc'] : "Anônimo"; ?></p>
     <!-- <a style="text-decoration: none;color:#ffffff;box-shadow: 6px 8px 7px -5px #276873;background-color:#0000006E;padding:5px 5px;border-radius:10px;" href="logout.php" title="Sair">Sair <i class="fa fa-sign-out"></i></a> -->
+</div>
+
+<div class="well well-sm" id="resumo-semana">
+    <i class="fas fa-calendar-check"></i> <strong>Refeições confirmadas essa semana:</strong> <span id="resumo-semana-total">0</span>
 </div>
 
 <div class="row">
@@ -25,6 +52,7 @@
                             <div id="cafe-container" style="display: flex ;justify-content: center"></div>
                             <p><i style="color:#fdf59a" class="fa fa-square"></i> Hoje</p>
                             <p><i style="color:#0044cc" class="fa fa-square"></i> Dia Arranchado</p>
+                            <p><i style="color:#8a8a8a" class="fa fa-square"></i> Arranchado (prazo p/ cancelar encerrado)</p>
                             <p><i style="color:#504F4F2B" class="fa fa-square"></i> Dia Bloqueado</p>
                         </div>
                         <div class="text-center" id="box-status-cafe"></div>
@@ -55,6 +83,7 @@
                             <div id="almoco-container" style="display: flex ;justify-content: center"></div>
                             <p><i style="color:#fdf59a" class="fa fa-square"></i> Hoje</p>
                             <p><i style="color:#0044cc" class="fa fa-square"></i> Dia Arranchado</p>
+                            <p><i style="color:#8a8a8a" class="fa fa-square"></i> Arranchado (prazo p/ cancelar encerrado)</p>
                             <p><i style="color:#504F4F2B" class="fa fa-square"></i> Dia Bloqueado</p>
                         </div>
                         <div class="text-center" id="box-status-almoco"></div>
@@ -85,6 +114,7 @@
                             <div id="janta-container" style="display: flex ;justify-content: center"></div>
                             <p><i style="color:#fdf59a" class="fa fa-square"></i> Hoje</p>
                             <p><i style="color:#0044cc" class="fa fa-square"></i> Dia Arranchado</p>
+                            <p><i style="color:#8a8a8a" class="fa fa-square"></i> Arranchado (prazo p/ cancelar encerrado)</p>
                             <p><i style="color:#504F4F2B" class="fa fa-square"></i> Dia Bloqueado</p>
                         </div>
                         <div class="text-center" id="box-status-janta"></div>
@@ -103,4 +133,11 @@
     <ul id="dias-arranchado-list" class="list-group">
         <!-- Os itens da lista serão adicionados aqui pelo JavaScript -->
     </ul>
+</div>
+
+<div id="loading-overlay">
+    <div class="box">
+        <i class="fa fa-spinner fa-spin fa-3x"></i>
+        <p style="margin-top:10px;">Salvando...</p>
+    </div>
 </div>

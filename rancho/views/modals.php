@@ -169,7 +169,7 @@
 							<div class="form-group">
 								<label class="col-sm-2 control-label">Cia: </label>
 								<div class="col-sm-6">
-									<select style="width: 100%;" data-selected-text-format="count" multiple class="selectpicker form-control" name="om_ard" id="om_ard">
+									<select style="width: 100%;" data-selected-text-format="count" data-actions-box="true" multiple class="selectpicker form-control" name="om_ard" id="om_ard">
 										<?php
 										if($usuario_logado['tipo'] == 1){
 											$con = $cnt->prepare("SELECT * FROM cad_cia WHERE id != 100");
@@ -187,7 +187,7 @@
 								<div class="form-group">
 									<label class="col-sm-2 control-label">P/G: </label>
 									<div class="col-sm-5">
-										<select style="width:100%;" data-selected-text-format="count" multiple class="selectpicker form-control" name="pg_ard" id="pg_ard">
+										<select style="width:100%;" data-selected-text-format="count" data-actions-box="true" multiple class="selectpicker form-control" name="pg_ard" id="pg_ard">
 											<?php
 											if($usuario_logado['tipo'] == 1 ){
 												$con = $cnt->prepare("SELECT id, nome FROM cad_posto ORDER BY ordem ASC");
@@ -430,7 +430,8 @@
 													</div>
 												</div>
 												<div class="modal-footer">
-													<button type="button" id="btnSave-arranchar" class="btn btn-success">Salvar <i class="fa fa-floppy-o"></i> </button>
+													<button type="button" id="btnSave-arranchar" class="btn btn-success">Arranchar <i class="fa fa-floppy-o"></i> </button>
+													<button type="button" id="btnDesarranchar-arranchar" class="btn btn-danger">Desarranchar <i class="fa fa-trash"></i> </button>
 												</div>
 											</form>
 										</div>

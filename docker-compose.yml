@@ -1,6 +1,7 @@
 services:
   php:
     container_name: sisrancho-php
+    restart: always
     build:
       context: .
       dockerfile: Dockerfile
@@ -18,12 +19,13 @@ services:
   db:
     container_name: sisrancho-db
     platform: linux/x86_64
-    image: mysql:5.7
+    image: mysql:8.0
     volumes:
       - ./database.sql:/docker-entrypoint-initdb.d/database.sql
+      - db_data:/var/lib/mysql
     restart: always
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: sisrancho

@@ -10,7 +10,36 @@ $newDate =  isset($_POST['data']) ? $_POST['data'] : null;
 //captura tipo de arranchamento (cafe, almoco, janta)
 $tipo =  isset($_POST['tipo']) ? $_POST['tipo'] : null;
 
+function desarranchamentoPermitido($newDate)
+{
+	$diaSemana = (int) date('N', strtotime($newDate)); // 1=Segunda ... 6=Sábado, 7=Domingo
+
+	// Sábado, Domingo e Segunda só podem ser desfeitos até a sexta-feira anterior
+	$diasAteSextaAnterior = [6 => 1, 7 => 2, 1 => 3];
+
+	if (isset($diasAteSextaAnterior[$diaSemana])) {
+		$limite = date('Y-m-d', strtotime($newDate . ' -' . $diasAteSextaAnterior[$diaSemana] . ' days'));
+		if (date('Y-m-d') > $limite) {
+			return 'Refeições de sábado, domingo e segunda só podem ser desarranchadas até sexta-feira!';
+		}
+		return true;
+	}
+
+	$diasDeAntecedencia = (strtotime($newDate) - strtotime(date('Y-m-d'))) / 86400;
+	if ($diasDeAntecedencia < 2) {
+		return 'Só é possível desarranchar até 2 dias antes da refeição!';
+	}
+
+	return true;
+}
+
 if($newDate && $tipo){
+
+	if(!$identidade){
+		http_response_code(401);
+		echo '{"error":"Sessão expirada, faça login novamente."}';
+		die();
+	}
 
 	if($tipo != 1 && $tipo != 2 && $tipo != 3){
 		echo '{"error":"Refeição não cadastrada!"}';
@@ -33,6 +62,13 @@ if($newDate && $tipo){
 
 	if($total){
 		if($res['data'] == $newDate){
+
+			$permitido = desarranchamentoPermitido($newDate);
+			if($permitido !== true){
+				echo json_encode(['error' => $permitido]);
+				die();
+			}
+
 			$con = $cnt->prepare("DELETE FROM registros WHERE ident_militar = :identidade AND tp = :tipo AND data = :newDate");
 			$con->bindValue(':identidade', $identidade, PDO::PARAM_STR);
 			$con->bindValue(':tipo', $tipo, PDO::PARAM_INT);

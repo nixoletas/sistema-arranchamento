@@ -2,7 +2,7 @@
 			<div class="row">
 				<div class="col-sm-2">
 					<div class="row">
-						<img style="padding-bottom: 30px;" src="assets/img/open-source.png" alt="logo" width=100 class="img-responsive center" />
+						<img style="padding-bottom: 30px;" src="assets/img/logo.png" alt="logo" width=150 class="img-responsive center" />
 						<div class="list-group">
 							<!-- <a class="list-group-item" href="logout.php"><i class="fa fa-home"></i> Início</a> -->
 							<a class="list-group-item" href="#" data-toggle="modal" data-target="#login-modal"><i class="fa fa-user"></i> Login</a>
@@ -14,7 +14,7 @@
 					<div class="carousel slide hidden-xs">
 						<div class="carousel-inner">
 							<div class="item active">
-									<p style="text-shadow: 2px 2px 2px #5F9EA0; color:blue;font-size:350%; "><b>Arranchamento Online</b></p>
+									<p style="text-shadow: 2px 2px 2px #FFFFFF; color:blank;font-size:350%; "><b>Sistema de Arranchamento do 53º BIS </b></p>
 							</div>
 						</div>
 					</div>
@@ -48,7 +48,7 @@
 							</div>
 							<div style="width: 800px; display: flex; justify-content: center">
 								<div class="col-md-6 col-sm-6 post">
-									<a href="http://10.56.19.133/arquivos/aprov/" target="_blank" class="thumbnail" alt="cardapio"><h3 class="text-center">Cardápio da semana</h3></a>
+									<a href="http://arquivos.53bis.eb.mil.br/s/MEHHqwrH7GHPJjP" target="_blank" class="thumbnail" alt="cardapio"><h3 class="text-center">Cardápio da semana</h3></a>
 								</div>
 							</div>
 						</div>

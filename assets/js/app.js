@@ -5,6 +5,35 @@ $(function() {
 
     $(".maskIdentidade").mask("000.000.000-00");
 
+    const mostrarCarregando = function() {
+        $('#loading-overlay').css('display', 'flex');
+    };
+    const esconderCarregando = function() {
+        $('#loading-overlay').css('display', 'none');
+    };
+
+    // Espelha a regra do servidor (controllers/registros.php) só para dar feedback visual.
+    // A regra de verdade continua sendo validada no servidor.
+    const desarranchamentoPermitido = function(dataStr) {
+        const data = new Date(dataStr + 'T00:00:00');
+        const diaSemana = data.getDay(); // 0=Dom ... 6=Sab
+
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+
+        // Sábado(6), Domingo(0) e Segunda(1) só podem ser desfeitos até a sexta-feira anterior
+        const diasAteSextaAnterior = { 6: 1, 0: 2, 1: 3 };
+
+        if (diasAteSextaAnterior.hasOwnProperty(diaSemana)) {
+            const limite = new Date(data);
+            limite.setDate(limite.getDate() - diasAteSextaAnterior[diaSemana]);
+            return hoje <= limite;
+        }
+
+        const diffDias = Math.round((data - hoje) / 86400000);
+        return diffDias >= 2;
+    };
+
     const verificaDias = function() {
         return new Promise((resolve, reject) => {
             $.ajax({
@@ -110,6 +139,32 @@ $(function() {
         }
     }
 
+    function calcularResumoSemana(diasArranchado) {
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+
+        const diaSemanaHoje = hoje.getDay(); // 0=Dom ... 6=Sab
+        const offsetSegunda = diaSemanaHoje === 0 ? 6 : diaSemanaHoje - 1;
+        const segunda = new Date(hoje);
+        segunda.setDate(segunda.getDate() - offsetSegunda);
+        const domingo = new Date(segunda);
+        domingo.setDate(domingo.getDate() + 6);
+
+        let total = 0;
+        $.each(diasArranchado, function(_, item) {
+            const dias = item.date.split(',');
+            $.each(dias, function(_, d) {
+                if (!d) return;
+                const data = new Date(d + 'T00:00:00');
+                if (data >= segunda && data <= domingo) {
+                    total++;
+                }
+            });
+        });
+
+        $('#resumo-semana-total').text(total);
+    }
+
     function processDiasArranchado(diasArranchado) {
         let DiasCafe = [], DiasAlmoco = [], DiasJanta = [];
 
@@ -125,7 +180,11 @@ $(function() {
             }
         });
 
+        calcularResumoSemana(diasArranchado);
+
         const setupDatepicker = function(selector, datesDisabled, Dias) {
+            let requestEmAndamento = false;
+
             $(selector).datepicker({
                 datesDisabled: datesDisabled,
                 format: "dd/mm/yyyy",
@@ -141,26 +200,67 @@ $(function() {
                         y = date.getFullYear();
                     const dateFormat = y + "-" + m + "-" + d;
                     if (Array.isArray(Dias) && Dias.includes(dateFormat)) {
+                        if (desarranchamentoPermitido(dateFormat)) {
+                            return {
+                                tooltip: 'Arranchado — clique para desarranchar',
+                                classes: 'active'
+                            };
+                        }
                         return {
-                            tooltip: 'Arranchado',
-                            classes: 'active'
+                            tooltip: 'Arranchado — prazo para cancelar já encerrou',
+                            classes: 'arranchado-bloqueado'
                         };
                     }
                     return {};
                 }
             }).on('changeDate', function(e) {
+                if (requestEmAndamento) {
+                    return;
+                }
+
+                const dataClicada = e.format(0, "yyyy-mm-dd");
+                const vaiDesarranchar = Array.isArray(Dias) && Dias.includes(dataClicada);
+
+                if (vaiDesarranchar) {
+                    if (!desarranchamentoPermitido(dataClicada)) {
+                        window.alert('Não é mais possível desarranchar esse dia — o prazo já passou.');
+                        return;
+                    }
+                    const dataFormatada = e.format(0, "dd/mm/yyyy");
+                    if (!window.confirm('Tem certeza que deseja desarranchar o dia ' + dataFormatada + '?')) {
+                        return;
+                    }
+                }
+
+                requestEmAndamento = true;
+                mostrarCarregando();
+
+                const refeicaoNome = selector === '#cafe-container' ? 'cafe' : selector === '#almoco-container' ? 'almoco' : 'jantar';
+                const tipoRefeicao = selector === '#cafe-container' ? '1' : selector === '#almoco-container' ? '2' : '3';
+                const dadosEnvio = { data: dataClicada, tipo: tipoRefeicao };
+
                 $.ajax({
                     type: "POST",
                     dataType: "json",
                     url: "controllers/registros.php",
-                    data: { data: e.format(0, "yyyy-mm-dd"), tipo: selector === '#cafe-container' ? '1' : selector === '#almoco-container' ? '2' : '3' },
+                    data: dadosEnvio,
                     success: function(data) {
                         if (data.error) {
+                            esconderCarregando();
                             window.alert(data.error);
                         }
+                        // Recarrega para refletir o estado real do servidor
+                        window.location.href = `index.php?pasta=home&pagina=inicio&refeicao=${refeicaoNome}`;
+                    },
+                    error: function() {
+                        // Não tenta de novo sozinho: como a ação alterna (arranchar/desarranchar),
+                        // repetir automaticamente poderia desfazer uma gravação que na verdade deu certo.
+                        // Recarrega para mostrar o estado real e o usuário decide se precisa clicar de novo.
+                        esconderCarregando();
+                        window.alert('Não foi possível confirmar se salvou. Verificando o estado atual...');
+                        window.location.href = `index.php?pasta=home&pagina=inicio&refeicao=${refeicaoNome}`;
                     }
                 });
-				window.location.href = `index.php?pasta=home&pagina=inicio&refeicao=${selector === '#cafe-container' ? 'cafe' : selector === '#almoco-container' ? 'almoco' : 'jantar'}`;
             });
         };
 
@@ -184,8 +284,10 @@ $(function() {
 
                 const dias = item.date.split(',');
                 $.each(dias, function(i, dia) {
-                    const data = new Date(dia);
-                    data.setUTCHours(+27, 59, 59, 0);
+                    // Fim do dia no horário local do navegador (o dia de hoje conta como futuro).
+                    // Não usar new Date(dia): "AAAA-MM-DD" é lido como meia-noite UTC e, no fuso de
+                    // Itaituba (UTC-3), o ajuste antigo de +27h59 jogava a data para o dia seguinte.
+                    const data = new Date(dia + 'T23:59:59');
 
                     if (data >= hoje) {
                         diasFuturos.push({

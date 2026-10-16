@@ -19,7 +19,7 @@
 					<script src='/assets/js/mask.js'></script>
 					<script src='/assets/bootstrap-datepicker/dist/js/bootstrap-datepicker.js'></script>
 					<script src='/assets/bootstrap-datepicker/dist/locales/bootstrap-datepicker.pt-BR.min.js'></script>
-					<script src='/assets/js/app.js'></script>
+					<script src='/assets/js/app.js?v=<?php echo (int)@filemtime(__DIR__ . '/../assets/js/app.js'); ?>'></script>
 					<?php
 					if (isset($_GET['refeicao'])) {
 						switch ($_GET['refeicao']) {

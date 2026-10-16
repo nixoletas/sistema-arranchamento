@@ -3,7 +3,7 @@ error_reporting(0);
 require_once("../controllers/config/conexao.php");
 session_start();
 
-if ($_SESSION['usuario']['id'] && is_numeric($_SESSION['usuario']['id'])) {
+if (!empty($_SESSION['usuario']['id']) && is_numeric($_SESSION['usuario']['id'])) {
 
 	$usuario = $_SESSION['usuario']['id'];
 
@@ -22,8 +22,10 @@ if ($_SESSION['usuario']['id'] && is_numeric($_SESSION['usuario']['id'])) {
 	if ($total) {
 		$usuario_logado = $con->fetch(PDO::FETCH_ASSOC);
 	}
-} else
+} else {
 	header("location: index.php");
+	exit;
+}
 
 ?>
 <!DOCTYPE html>
@@ -52,6 +54,44 @@ if ($_SESSION['usuario']['id'] && is_numeric($_SESSION['usuario']['id'])) {
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Rawline', sans-serif;
 }
+
+	/* Cartões do painel: mesma altura e sem buracos na grade */
+	.cards-admin { display: flex; flex-wrap: wrap; }
+	.cards-admin:before, .cards-admin:after { display: none; }
+	.cards-admin > [class*="col-"] { display: flex; margin-bottom: 20px; }
+	.cards-admin .panel { width: 100%; margin-bottom: 0; display: flex; flex-direction: column; }
+	.cards-admin .panel-heading { flex: 1 1 auto; min-height: 118px; }
+	.cards-admin .panel > a { display: block; }
+
+	/* Caixas de marcar nos campos de seleção múltipla.
+	   bootstrap-select (Relatórios: Cia e P/G; Arranchar: Militares): troca o "✓" pequeno à direita por uma caixa à esquerda. */
+	.bootstrap-select.show-tick .dropdown-menu li a { position: relative; padding-left: 34px; }
+	.bootstrap-select.show-tick .dropdown-menu li a::before {
+		content: ""; position: absolute; left: 10px; top: 50%; margin-top: -8px;
+		width: 16px; height: 16px; border: 1px solid #8a8a8a; border-radius: 3px; background: #fff;
+	}
+	.bootstrap-select.show-tick .dropdown-menu li.selected a::before { background: #337ab7; border-color: #337ab7; }
+	.bootstrap-select.show-tick .dropdown-menu li.selected a::after {
+		content: ""; position: absolute; left: 15px; top: 50%; margin-top: -6px;
+		width: 6px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+	}
+	.bootstrap-select.show-tick .dropdown-menu li a span.check-mark { display: none !important; }
+	.bootstrap-select.show-tick .dropdown-menu li a span.text { margin-right: 0; }
+
+	/* select2 (Bloquear dias: Cia e P/G): mesma caixa em cada opção da lista. */
+	.select2-caixas .select2-results__option[aria-selected] { position: relative; padding-left: 32px; }
+	.select2-caixas .select2-results__option[aria-selected]::before {
+		content: ""; position: absolute; left: 8px; top: 50%; margin-top: -8px;
+		width: 16px; height: 16px; border: 1px solid #8a8a8a; border-radius: 3px; background: #fff;
+	}
+	.select2-caixas .select2-results__option[aria-selected=true] { background-color: #eef4fb; color: #333; }
+	.select2-caixas .select2-results__option[aria-selected=true]::before { background: #337ab7; border-color: #337ab7; }
+	.select2-caixas .select2-results__option[aria-selected=true]::after {
+		content: ""; position: absolute; left: 13px; top: 50%; margin-top: -6px;
+		width: 6px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+	}
+	.select2-caixas .select2-results__option--highlighted[aria-selected] { background-color: #d6e6f7; color: #333; }
+	.acoes-multipla { font-size: 12px; margin-top: 4px; }
 </style>
 
 <body>
@@ -68,9 +108,9 @@ h1, h2, h3, h4, h5, h6 {
 			</div>
 		</div>
 		<hr>
-		<div class="row">
+		<div class="row cards-admin">
 
-			<div class="col-lg-3">
+			<div class="col-lg-3 col-md-4 col-sm-6">
 				<div class="panel panel-warning">
 					<div class="panel-heading">
 						<div class="row">
@@ -99,7 +139,37 @@ h1, h2, h3, h4, h5, h6 {
 			</div>
 
 			<?php if ($usuario_logado['tipo'] == 1) { ?>
-				<div class="col-lg-3">
+				<div class="col-lg-3 col-md-4 col-sm-6">
+					<div class="panel panel-info">
+						<div class="panel-heading">
+							<div class="row">
+								<div class="col-xs-6">
+									<i class="fa fa-utensils fa-5x"></i>
+								</div>
+								<div class="col-xs-6 text-right">
+									<p class="announcement-heading">&nbsp;</p>
+									<p class="announcement-text">Vale de Rações</p>
+								</div>
+							</div>
+						</div>
+						<a href="vale.php">
+							<div class="panel-footer announcement-bottom">
+								<div class="row">
+									<div class="col-xs-6">
+										Acessar
+									</div>
+									<div class="col-xs-6 text-right">
+										<i class="fa fa-arrow-circle-right"></i>
+									</div>
+								</div>
+							</div>
+						</a>
+					</div>
+				</div>
+			<?php  } ?>
+
+			<?php if ($usuario_logado['tipo'] == 1) { ?>
+				<div class="col-lg-3 col-md-4 col-sm-6">
 					<div class="panel panel-danger">
 						<div class="panel-heading">
 							<div class="row">
@@ -128,7 +198,7 @@ h1, h2, h3, h4, h5, h6 {
 				</div>
 			<?php  } ?>
 			<?php if ($usuario_logado['tipo'] == 1) { ?>
-				<div class="col-lg-3">
+				<div class="col-lg-3 col-md-4 col-sm-6">
 					<div class="panel panel-success">
 						<div class="panel-heading">
 							<div class="row">
@@ -156,11 +226,7 @@ h1, h2, h3, h4, h5, h6 {
 					</div>
 				</div>
 			<?php  } ?>
-			<?php if ($usuario_logado['tipo'] == 1) { ?>
-				<div class="col-lg-3">
-
-
-<!-- militares de Outra OM
+<!-- militares de Outra OM (desativado; se reativar, ponha o card dentro de <div class="col-lg-3 col-md-4 col-sm-6"> e de um if de tipo 1)
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<div class="row">
@@ -188,10 +254,7 @@ h1, h2, h3, h4, h5, h6 {
 					</div>
 miltares de Outra OM ------------------------------------ -->
 
-				</div>
-			<?php  } ?>
-
-			<div class="col-lg-3">
+			<div class="col-lg-3 col-md-4 col-sm-6">
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<div class="row">
@@ -220,7 +283,7 @@ miltares de Outra OM ------------------------------------ -->
 			</div>
 
 
-			<div class="col-lg-3">
+			<div class="col-lg-3 col-md-4 col-sm-6">
 				<div class="panel panel-danger">
 					<div class="panel-heading">
 						<div class="row">
@@ -249,7 +312,7 @@ miltares de Outra OM ------------------------------------ -->
 			</div>
 
 			<?php if ($usuario_logado['tipo'] == 1) { ?>
-				<div class="col-lg-3">
+				<div class="col-lg-3 col-md-4 col-sm-6">
 					<div class="panel panel-danger">
 						<div class="panel-heading">
 							<div class="row">
@@ -279,7 +342,7 @@ miltares de Outra OM ------------------------------------ -->
 			<?php  } ?>
 
 			<?php if ($usuario_logado['tipo'] == 1) { ?>
-				<div class="col-lg-3">
+				<div class="col-lg-3 col-md-4 col-sm-6">
 					<div class="panel panel-warning">
 						<div class="panel-heading">
 							<div class="row">
@@ -309,7 +372,7 @@ miltares de Outra OM ------------------------------------ -->
 			<?php  } ?>
 
 			<?php if ($usuario_logado['tipo'] == 1 || $usuario_logado['tipo'] == 2) { ?>
-				<div class="col-lg-3">
+				<div class="col-lg-3 col-md-4 col-sm-6">
 					<div class="panel panel-primary">
 						<div class="panel-heading">
 							<div class="row">
@@ -349,11 +412,12 @@ miltares de Outra OM ------------------------------------ -->
 <script src='../assets/bootstrap-datepicker/dist/js/bootstrap-datepicker.js'></script>
 <script src='../assets/bootstrap-datepicker/dist/locales/bootstrap-datepicker.pt-BR.min.js'></script>
 <script src='../assets/bootstrap-select-1.12.4/dist/js/bootstrap-select.js'></script>
+<script src='../assets/bootstrap-select-1.12.4/dist/js/i18n/defaults-pt_BR.min.js'></script>
 <script src='../assets/select2-4.0.3/dist/js/select2.full.js'></script>
 <script src='../assets/ckeditor/ckeditor.js'></script>
 <script src='../assets/dataTables/datatables.js'></script>
 <script src='../assets/ckeditor/config.js'></script>
-<script src='../assets/js/app-rancho.js'></script>
+<script src='../assets/js/app-rancho.js?v=<?php echo (int)@filemtime(__DIR__ . '/../assets/js/app-rancho.js'); ?>'></script>
 <script src='../assets/js/jquery.validate-1.15.0.js'></script>
 
 <?php

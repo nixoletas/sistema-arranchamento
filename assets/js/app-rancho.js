@@ -1,8 +1,25 @@
 $(document).ready(function () {
 
 	$('.selectpicker').selectpicker();
-	$('.bloqOm').select2();
-	$('.bloqPg').select2();
+
+	// Bloquear dias (Cia e P/G): caixa de marcar em cada opção (CSS em home.php, classe select2-caixas),
+	// lista aberta enquanto se marca, e atalhos "Marcar todos / Desmarcar todos".
+	$('.bloqOm, .bloqPg').each(function() {
+		var $sel = $(this);
+		$sel.select2({
+			closeOnSelect: false,
+			width: '100%',
+			dropdownCssClass: 'select2-caixas',
+			placeholder: $sel.hasClass('bloqOm') ? 'Selecione as Cias' : 'Selecione os P/G'
+		});
+		var $acoes = $('<div class="acoes-multipla"><a href="#" data-acao="todos">Marcar todos</a> · <a href="#" data-acao="nenhum">Desmarcar todos</a></div>');
+		$acoes.on('click', 'a', function(ev) {
+			ev.preventDefault();
+			$sel.find('option').prop('selected', $(this).data('acao') === 'todos');
+			$sel.trigger('change');
+		});
+		$sel.next('.select2').after($acoes);
+	});
 	$(".maskIdentidade").mask("000.000.000-00");
 
 	$(".form input").keyup(function(){
@@ -29,15 +46,18 @@ $(document).ready(function () {
 	});
 
 	$('.input-date').datepicker({
-		format: "dd/mm/yyyy",
-		language: "pt-BR",
-		orientation: "bottom right",
-		startDate: '+1d',
-		endDate: '+6d',
-		todayHighlight: true,
-		daysOfWeekHighlighted: [0, 6],
-		todayBtn: true
-	});
+    format: "dd/mm/yyyy",
+    language: "pt-BR",
+    multidate: true,
+    multidateSeparator: ",",
+    autoclose: false,
+    orientation: "bottom right",
+    startDate: '+1d',
+    endDate: '+6d',
+    todayHighlight: true,
+    daysOfWeekHighlighted: [0, 6],
+    todayBtn: true
+});
 
 	$('.input-date-rancho').datepicker({
 		format: "yyyy-mm-dd",
@@ -226,24 +246,51 @@ $(document).ready(function () {
 			} 
 		});
 
-	$('#btnSave-arranchar').on('click', function(ev) {
-		var militares = $('#militares').val();
-		var dias = $('#dias-arranchar').val();
+	// Lê o formulário do modal "Arranchar (Militares)": militares, datas e refeições marcadas.
+	// Usado tanto para arranchar quanto para desarranchar (mesmo formulário, ações opostas).
+	var lerFormularioArranchar = function() {
 		var refeicao = [];
+		$("input:checkbox[class=refeicao-arranchar]:checked").each(function(){
+			refeicao.push(this.value);
+		});
+		return {
+			militares: $('#militares').val(),
+			dias: $('#dias-arranchar').val(),
+			refeicao: refeicao
+		};
+	};
+
+	var formularioArrancharValido = function(dados) {
+		if (!dados.militares || dados.militares.length === 0) {
+			window.alert('Selecione pelo menos um militar!');
+			return false;
+		}
+		if (!dados.dias) {
+			window.alert('Selecione pelo menos uma data!');
+			return false;
+		}
+		if (dados.refeicao.length === 0) {
+			window.alert('Selecione pelo menos uma refeição!');
+			return false;
+		}
+		return true;
+	};
+
+	$('#btnSave-arranchar').on('click', function(ev) {
+		var dados = lerFormularioArranchar();
+		if (!formularioArrancharValido(dados)) { return; }
 
 		$('#modalArranchar').modal('hide');
 		$("div#divLoading").addClass('show');
 
-		$("input:checkbox[class=refeicao-arranchar]:checked").each(function(){
-			refeicao.push(this.value);
-		});
 		$.ajax({
 			url: "controllers/arranchar.php",
 			type: "POST",
 			dataType: "json",
-			data: {militares: militares, dias: dias, refeicao: refeicao},
+			data: dados,
 			success: function(data){
 				if(data.error){
+					$("div#divLoading").removeClass('show');
 					window.alert(data.error);
 				}
 				if(data.success){
@@ -251,6 +298,47 @@ $(document).ready(function () {
 					window.alert(data.success)
 					window.location.href  = "home.php";
 				}
+			},
+			error: function(){
+				$("div#divLoading").removeClass('show');
+				window.alert('Não foi possível concluir. Tente novamente.');
+			}
+		});
+	});
+
+	$('#btnDesarranchar-arranchar').on('click', function(ev) {
+		var dados = lerFormularioArranchar();
+		if (!formularioArrancharValido(dados)) { return; }
+
+		var qtdMilitares = dados.militares.length;
+		var qtdDias = dados.dias.split(',').length;
+		var qtdRefeicoes = dados.refeicao.length;
+		var aviso = 'Tem certeza que deseja DESARRANCHAR ' + qtdMilitares + ' militar(es) em ' +
+			qtdDias + ' dia(s) e ' + qtdRefeicoes + ' refeição(ões)? Essa ação não pede confirmação de novo.';
+		if (!window.confirm(aviso)) { return; }
+
+		$('#modalArranchar').modal('hide');
+		$("div#divLoading").addClass('show');
+
+		$.ajax({
+			url: "controllers/desarranchar.php",
+			type: "POST",
+			dataType: "json",
+			data: dados,
+			success: function(data){
+				if(data.error){
+					$("div#divLoading").removeClass('show');
+					window.alert(data.error);
+				}
+				if(data.success){
+					$("div#divLoading").removeClass('show');
+					window.alert(data.success)
+					window.location.href  = "home.php";
+				}
+			},
+			error: function(){
+				$("div#divLoading").removeClass('show');
+				window.alert('Não foi possível concluir. Tente novamente.');
 			}
 		});
 	});
@@ -302,9 +390,12 @@ $(document).ready(function () {
 			data: {posto: posto, om: om },
 			success: function(data){
 				$('#militares').append(data);
-				$('.selectpicker').selectpicker('refresh');
-				if(localStorage.getItem('milData'+posto).length > 0){
-					$('.selectpicker').selectpicker('val', JSON.parse(localStorage.getItem('milData'+posto)));
+				$('#militares').selectpicker('refresh');
+				// Remarca os militares que estavam marcados da última vez neste P/G (se houver).
+				var salvos = null;
+				try { salvos = JSON.parse(localStorage.getItem('milData' + posto) || 'null'); } catch (e) { salvos = null; }
+				if (salvos && salvos.length) {
+					$('#militares').selectpicker('val', salvos);
 				}
 			}
 		});
