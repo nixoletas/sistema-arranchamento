@@ -17,6 +17,23 @@ if ($identidade) {
 	$con->execute();
 	$res = $con->fetch(PDO::FETCH_ASSOC);
 
+	if (acesso_pelo_app() && !empty($_POST['primeiro'])) {
+		// Primeiro acesso pelo app: cria a senha e já entra (regras em acesso-app.php).
+		$militar = app_primeiro_acesso($cnt, $identidade, (string)($_POST['nova'] ?? ''), (string)($_POST['confirma'] ?? ''));
+		if (!is_array($militar)) {
+			echo json_encode(['erro' => '<p class="alert alert-danger">' . htmlspecialchars($militar) . '</p>'], JSON_UNESCAPED_UNICODE);
+			exit;
+		}
+		include_once "../rancho/controllers/auditoria.php";
+		auditoria('SENHA_APP_1ACESSO', 0, $cnt, $identidade);
+		app_entrar($cnt, $militar);
+		if (!empty($_POST['lembrar'])) {
+			app_lembrar($cnt, $identidade);
+		}
+		echo json_encode(['url' => 'index.php?pasta=home&pagina=inicio']);
+		exit;
+	}
+
 	if (acesso_pelo_app()) {
 		$senha = (string)($_POST['senha'] ?? '');
 		// CPF inexistente, sem senha ou senha errada: mesma resposta (não revela quais CPFs existem).

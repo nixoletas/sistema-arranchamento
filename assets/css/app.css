@@ -98,3 +98,12 @@ body.modo-app { background: var(--app-fundo); color: var(--app-texto); height: a
 
 /* Caixa "Manter conectado" na cor do app (tema de checkbox do style.css). */
 .modo-app .checkbox-primary input[type="checkbox"]:checked + label::before { background-color: var(--app-verde); border-color: var(--app-verde); }
+
+/* Abas da tela de entrada: Entrar / Primeiro acesso */
+.app-abas { display: flex; gap: 4px; background: #eef2ee; border-radius: 10px; padding: 4px; margin-bottom: 14px; }
+.app-abas button { flex: 1; border: 0; background: transparent; padding: 10px 6px; border-radius: 8px; font-weight: 600; font-size: 15px; color: #5b6b5b; }
+.app-abas button.ativa { background: #fff; color: var(--app-verde); box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+.app-abas button:focus-visible { outline: 2px solid var(--app-verde); outline-offset: 1px; }
+.app-senha-simples { letter-spacing: 3px; }
+.app-senha-simples::placeholder { letter-spacing: normal; }
+#box-primeiro .alert { margin: 14px 0 0; border-radius: 10px; font-size: 14px; }

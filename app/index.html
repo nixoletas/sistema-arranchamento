@@ -138,7 +138,8 @@
 		<section class="cartao">
 			<h2>Primeiro acesso</h2>
 			<div class="caixa">
-				A <strong>senha do app</strong> (6 números) é criada no sistema de arranchamento <strong>dentro da OM</strong>: entre com o CPF, toque em <strong>Senha do app</strong> e crie. Esqueceu? Peça ao <strong>furriel da sua Cia</strong> para zerar e crie outra.
+				Abra o aplicativo, toque em <strong>Primeiro acesso</strong>, informe o CPF e crie uma <strong>senha de 6 números</strong>. A senha também pode ser criada no sistema de arranchamento da OM (botão <strong>Senha do app</strong>).<br>
+				<strong>Esqueceu a senha?</strong> Solicite ao <strong>furriel da sua Cia</strong> que a zere e faça o primeiro acesso novamente.
 			</div>
 		</section>
 
@@ -150,7 +151,7 @@
 			var pagina = 'https://SEU-ENDERECO.ts.net/app/';
 			var texto = '53º Batalhão de Infantaria de Selva — Sistema de Arranchamento.\n\n'
 				+ 'O aplicativo de arranchamento está disponível para download no endereço abaixo:\n' + pagina + '\n\n'
-				+ 'No primeiro acesso, crie a senha do app no sistema de arranchamento da OM (botão "Senha do app").';
+				+ 'No primeiro acesso, abra o aplicativo e toque em "Primeiro acesso" para criar a sua senha.';
 			if (/iphone|ipad|ipod/i.test(navigator.userAgent)) { document.body.classList.add('e-iphone'); }
 			document.getElementById('btn-whatsapp').href = 'https://wa.me/?text=' + encodeURIComponent(texto);
 			var btnComp = document.getElementById('btn-compartilhar');

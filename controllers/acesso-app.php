@@ -64,7 +64,60 @@ function app_zerar_senha($cnt, $ident)
 	$cnt->prepare("DELETE FROM militar_token WHERE ident_militar = :ident")->execute([':ident' => $ident]);
 }
 
-const APP_MSG_ERRO = 'CPF ou senha incorretos. Se ainda não tem senha do app, crie no site dentro da OM (botão "Senha do app") ou peça ao furriel.';
+const APP_MSG_ERRO = 'CPF ou senha incorretos. Se ainda não tem senha, use "Primeiro acesso". Se esqueceu, procure o furriel da sua Cia.';
+const APP_MSG_PRIMEIRO = 'Não foi possível criar a senha para este CPF. Se você já tem senha, use "Entrar". Se esqueceu a senha, procure o furriel da sua Cia.';
+
+// Conta um erro de acesso para o CPF (cria a linha se preciso). Retorna a mensagem de bloqueio ou null.
+function app_registrar_falha($cnt, $ident, $r)
+{
+	$tentativas = ($r ? (int)$r['tentativas'] : 0) + 1;
+	$bloquear = $tentativas >= APP_MAX_TENTATIVAS;
+	$cnt->prepare("INSERT INTO militar_acesso (ident_militar, tentativas, bloqueado_ate)
+		VALUES (:ident, :t, " . ($bloquear ? "DATE_ADD(NOW(), INTERVAL " . APP_BLOQUEIO_MIN . " MINUTE)" : "NULL") . ")
+		ON DUPLICATE KEY UPDATE tentativas = VALUES(tentativas), bloqueado_ate = VALUES(bloqueado_ate)")
+		->execute([':ident' => $ident, ':t' => $bloquear ? 0 : $tentativas]);
+	return $bloquear ? 'Muitas tentativas erradas. Por segurança, o acesso pelo app ficou bloqueado por ' . APP_BLOQUEIO_MIN . ' minutos.' : null;
+}
+
+function app_bloqueado($r)
+{
+	if ($r && $r['bloqueado_ate'] && strtotime($r['bloqueado_ate']) > time()) {
+		$min = max(1, (int)ceil((strtotime($r['bloqueado_ate']) - time()) / 60));
+		return 'Muitas tentativas erradas. Tente de novo em ' . $min . ' minuto' . ($min > 1 ? 's' : '') . '.';
+	}
+	return null;
+}
+
+// Primeiro acesso pelo app: o militar cadastrado que ainda não tem senha cria a senha e já entra.
+// CPF inexistente ou que já tem senha: mesma resposta, e conta tentativa (impede testar listas de CPF).
+// Esqueceu a senha: o furriel zera (Gerenciar Militares) e ele faz o primeiro acesso de novo.
+// Retorna a linha do militar (sucesso) ou a mensagem de erro.
+function app_primeiro_acesso($cnt, $ident, $nova, $confirma)
+{
+	$fraca = app_senha_fraca((string)$nova);
+	if ($fraca) {
+		return $fraca;
+	}
+	if ($nova !== $confirma) {
+		return 'A confirmação não é igual à senha.';
+	}
+	if (!preg_match('/^\d{3}\.\d{3}\.\d{3}-\d{2}$/', (string)$ident)) {
+		return APP_MSG_PRIMEIRO;
+	}
+	$r = app_registro($cnt, $ident);
+	$bloq = app_bloqueado($r);
+	if ($bloq) {
+		return $bloq;
+	}
+	$con = $cnt->prepare('SELECT * FROM cad_militar WHERE ident_militar = :ident');
+	$con->execute([':ident' => $ident]);
+	$militar = $con->fetch(PDO::FETCH_ASSOC);
+	if (!$militar || ($r && !empty($r['senha_hash']))) {
+		return app_registrar_falha($cnt, $ident, $r) ?: APP_MSG_PRIMEIRO;
+	}
+	app_definir_senha($cnt, $ident, $nova);
+	return $militar;
+}
 
 // Confere a senha com bloqueio por tentativas. Retorna true ou a mensagem de erro.
 // CPF não cadastrado, CPF sem senha e senha errada dão a MESMA resposta e contam tentativa do mesmo jeito:
@@ -75,9 +128,9 @@ function app_conferir_senha($cnt, $ident, $senha)
 		return APP_MSG_ERRO;
 	}
 	$r = app_registro($cnt, $ident);
-	if ($r && $r['bloqueado_ate'] && strtotime($r['bloqueado_ate']) > time()) {
-		$min = max(1, (int)ceil((strtotime($r['bloqueado_ate']) - time()) / 60));
-		return 'Muitas tentativas erradas. Tente de novo em ' . $min . ' minuto' . ($min > 1 ? 's' : '') . '.';
+	$bloq = app_bloqueado($r);
+	if ($bloq) {
+		return $bloq;
 	}
 	// Sempre roda o password_verify (com um hash qualquer quando não há senha) para o tempo de resposta ser igual.
 	$hash = ($r && !empty($r['senha_hash'])) ? $r['senha_hash'] : '$2y$10$abcdefghijklmnopqrstuuJ0nFhW7Q3hGQ3dP3oG0rjWm5r3m5w2a';
@@ -87,16 +140,7 @@ function app_conferir_senha($cnt, $ident, $senha)
 			->execute([':ident' => $ident]);
 		return true;
 	}
-	$tentativas = ($r ? (int)$r['tentativas'] : 0) + 1;
-	$bloquear = $tentativas >= APP_MAX_TENTATIVAS;
-	$cnt->prepare("INSERT INTO militar_acesso (ident_militar, tentativas, bloqueado_ate)
-		VALUES (:ident, :t, " . ($bloquear ? "DATE_ADD(NOW(), INTERVAL " . APP_BLOQUEIO_MIN . " MINUTE)" : "NULL") . ")
-		ON DUPLICATE KEY UPDATE tentativas = VALUES(tentativas), bloqueado_ate = VALUES(bloqueado_ate)")
-		->execute([':ident' => $ident, ':t' => $bloquear ? 0 : $tentativas]);
-	if ($bloquear) {
-		return 'Muitas tentativas erradas. Por segurança, o acesso pelo app ficou bloqueado por ' . APP_BLOQUEIO_MIN . ' minutos.';
-	}
-	return APP_MSG_ERRO;
+	return app_registrar_falha($cnt, $ident, $r) ?: APP_MSG_ERRO;
 }
 
 // Põe o militar na sessão (mesmo formato do login pelo site), marcando que entrou pelo app.
