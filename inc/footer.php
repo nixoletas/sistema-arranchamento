@@ -1,8 +1,8 @@
 					<hr>
 					<?php if (!(function_exists('acesso_pelo_app') && acesso_pelo_app())) { ?>
 					<!-- Atalho para a página de download/compartilhamento do app (só no site interno; no app não precisa). -->
-					<a href="/app/" target="_blank" rel="noopener" class="botao-baixar-app" title="Baixar o app do arranchamento para Android e compartilhar">
-						<i class="fa-solid fa-mobile-screen-button"></i> Baixe o app
+					<a href="/app/" target="_blank" rel="noopener" class="botao-baixar-app" title="Baixar e divulgar o aplicativo de arranchamento">
+						<i class="fa-solid fa-mobile-screen-button"></i> Baixar o aplicativo
 					</a>
 					<style>
 						.botao-baixar-app { position: fixed; right: 16px; bottom: 16px; z-index: 1500; background: #2f5f2f; color: #fff;

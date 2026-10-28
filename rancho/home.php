@@ -160,7 +160,7 @@ h1, h2, h3, h4, h5, h6 {
 										echo "Administrador";
 									} else echo "Operador"; ?></p>
 				<a class="btn btn-default btn-sm" href="logout.php" title="Sair">Sair <i class="fa fa-sign-out"></i></a>
-				<a class="btn btn-success btn-sm" href="/app/" target="_blank" rel="noopener" title="Página para baixar o app e compartilhar pelo WhatsApp"><i class="fa-solid fa-mobile-screen-button"></i> App do militar (baixar/compartilhar)</a>
+				<a class="btn btn-success btn-sm" href="/app/" target="_blank" rel="noopener" title="Página para baixar e divulgar o aplicativo aos militares"><i class="fa-solid fa-mobile-screen-button"></i> Aplicativo do militar: baixar e divulgar</a>
 			</div>
 		</div>
 		<hr>

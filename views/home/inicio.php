@@ -72,7 +72,7 @@
     <div style="margin-top:8px;">
         <button type="button" class="btn btn-default btn-sm" id="btn-senha-app" data-toggle="modal" data-target="#modalSenhaApp"><i class="fa-solid fa-key"></i> Senha do app</button>
         <button type="button" class="btn btn-success btn-sm" id="btn-instalar-app" style="display:none;"><i class="fa-solid fa-download"></i> Instalar app</button>
-        <a class="btn btn-default btn-sm" href="/app/" target="_blank" rel="noopener"><i class="fa-solid fa-share-nodes"></i> Baixar / compartilhar o app</a>
+        <a class="btn btn-default btn-sm" href="/app/" target="_blank" rel="noopener"><i class="fa-solid fa-share-nodes"></i> Aplicativo: baixar e divulgar</a>
     </div>
     <p id="dica-ios" class="text-muted" style="display:none;font-size:12px;margin:8px 0 0;">
         No iPhone: toque em <i class="fa-solid fa-arrow-up-from-bracket"></i> Compartilhar e depois em "Adicionar à Tela de Início".
