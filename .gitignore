@@ -472,9 +472,13 @@ composer.lock
 *.scss.map
 # Log de erros do PHP (pode conter dados de uso)
 /logs/
-##### Sistema de Arranchamento: backups e dumps locais (podem conter dados pessoais)
+# App Android desta instalação (gerado à parte, com chave própria)
+/app/*.apk
+/.well-known/
 /backup/*.sql.gz
 *.backup
 *.backup-*
 *.bak-*
 docker-compose.yml.backup
+/app/qrcode.png
+.env

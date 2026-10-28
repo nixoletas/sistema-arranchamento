@@ -15,12 +15,15 @@ class App
 
 		include "inc/header.php";
 
+		// Pelo app (endereço público / APK): barra no topo no lugar da coluna lateral e tela de entrada própria.
+		$pelo_app = function_exists('acesso_pelo_app') && acesso_pelo_app();
+
 		if($logado && $nome_valido($pasta) && $nome_valido($pagina) && is_file("views/".$pasta."/".$pagina.".php"))
 		{
-			include "inc/skeleton.php";
+			include $pelo_app ? "inc/app-topo.php" : "inc/skeleton.php";
 			include "views/".$pasta."/".$pagina.".php";
 		}else{
-			include "views/index.php";
+			include $pelo_app ? "views/app-login.php" : "views/index.php";
 		}
 		include "inc/footer.php";
 		

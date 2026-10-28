@@ -70,6 +70,11 @@ $versaoJs = @filemtime(__DIR__ . '/../assets/js/vale-dia.js') ?: 1;
 		.mes-editado { color: #b58900; }
 		a.abrir-dia { text-decoration: none; }
 
+		/* Celular: o campo de data ocupa a linha sem passar da borda. */
+		@media (max-width: 767px) {
+			#dia-data { margin: 6px 0 !important; width: 100%; }
+		}
+
 		@media print {
 			@page { size: A4 landscape; margin: 10mm; }
 			body { font-size: 10px; }

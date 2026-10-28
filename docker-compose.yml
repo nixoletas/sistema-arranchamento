@@ -7,8 +7,12 @@ services:
       dockerfile: Dockerfile
     volumes:
       - .:/var/www/html
+      # Entrada do app (porta 8081, só parte do militar, exige senha): docker/acesso-app.conf
+      - ./docker/acesso-app.conf:/etc/apache2/conf-enabled/acesso-app.conf:ro
     ports:
       - "8080:80"
+      # Porta do app só no próprio servidor (testes); o Tailscale chega nela pela rede interna do Docker.
+      - "127.0.0.1:8081:8081"
     networks:
       - sisrancho-network
     environment:
@@ -48,11 +52,49 @@ services:
     networks:
       - sisrancho-network
 
+  # App de fora da OM (opcional): o Tailscale Funnel publica https://<maquina>.<sua-rede>.ts.net -> php:8081.
+  # Este container tem um IP próprio na LAN (rede "sisrancho-lan") e sai para a internet pelo roteador dessa
+  # rede. O site continua na rede interna do Docker. Valores da rede no arquivo .env (veja .env.example).
+  # Só sobe com:  docker compose --profile app up -d tailscale
+  tailscale:
+    container_name: sisrancho-tailscale
+    image: tailscale/tailscale:stable
+    hostname: arranchamento
+    profiles: ["app"]
+    restart: unless-stopped
+    environment:
+      TS_STATE_DIR: /var/lib/tailscale
+      TS_USERSPACE: "true"
+      TS_SERVE_CONFIG: /config/funnel.json
+    volumes:
+      - tailscale_state:/var/lib/tailscale
+      - ./docker/tailscale-funnel.json:/config/funnel.json:ro
+    dns:
+      - ${TS_DNS1:-1.1.1.1}
+      - ${TS_DNS2:-8.8.8.8}
+    networks:
+      sisrancho-lan:
+        ipv4_address: ${TS_LAN_IP:-192.168.0.240}
+        gw_priority: 100        # rota padrão pelo roteador da LAN
+      sisrancho-network: {}
+
 networks:
   sisrancho-network:
     name: sisrancho-network
+  # IP próprio na LAN só para o container do Tailscale (mesma placa de rede do servidor, sem MAC novo).
+  sisrancho-lan:
+    name: sisrancho-lan
+    driver: ipvlan
+    driver_opts:
+      parent: ${TS_LAN_PARENT:-eth0}
+      ipvlan_mode: l2
+    ipam:
+      config:
+        - subnet: ${TS_LAN_SUBNET:-192.168.0.0/24}
+          gateway: ${TS_LAN_GATEWAY:-192.168.0.1}
+          ip_range: ${TS_LAN_IP:-192.168.0.240}/32
 
 
 volumes:
   db_data:
-
+  tailscale_state:

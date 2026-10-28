@@ -1,16 +1,19 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-sm-2">
-					<div class="row">
+					<div class="row lateral">
 						<img style="padding-bottom: 30px;" src="assets/img/logo.png" alt="logo" width=150 class="img-responsive center" />
 						<div class="list-group">
 							<!-- <a class="list-group-item" href="logout.php"><i class="fa fa-home"></i> Início</a> -->
 							<a class="list-group-item" href="#" data-toggle="modal" data-target="#login-modal"><i class="fa fa-user"></i> Login</a>
+							<?php if (!acesso_pelo_app()) { /* o painel não é acessível pelo app */ ?>
 							<a class="list-group-item" href="rancho/" target="_blank"><i class="fa fa-lock"></i> Aprovisionador</a>
+							<?php } ?>
 						</div>
 					</div>
 				</div>
 				<div class="col-sm-10">
+					<h3 class="visible-xs text-center titulo-celular"><b>Sistema de Arranchamento do 53º BIS</b></h3>
 					<div class="carousel slide hidden-xs">
 						<div class="carousel-inner">
 							<div class="item active">
@@ -46,8 +49,8 @@
 									<p style="text-align: justify;">As substâncias antioxidantes bloqueiam a ação dos radicais livres no organismo, prevenindo a oxidação das células. Esses elementos são capazes de prevenir o aparecimento de tumores, o envelhecimento precoce e outras doenças.</p>
 								</div>
 							</div>
-							<div style="width: 800px; display: flex; justify-content: center">
-								<div class="col-md-6 col-sm-6 post">
+							<div class="row">
+								<div class="col-sm-6 col-sm-offset-3 post">
 									<a href="http://arquivos.53bis.eb.mil.br/s/MEHHqwrH7GHPJjP" target="_blank" class="thumbnail" alt="cardapio"><h3 class="text-center">Cardápio da semana</h3></a>
 								</div>
 							</div>
@@ -61,7 +64,15 @@
 				<div class="loginmodal-container">
 					<h4><span style="padding-right:5px;" class="fa fa-user"></span>Acesso ao Sistema</h4><br>
 					<form method="POST" id="form-login">
-						<input type="text" name="identidade" id="identidade" placeholder="Nº CPF" class="maskIdentidade form-control" autocomplete="off" required>
+						<input type="text" name="identidade" id="identidade" placeholder="Nº CPF" class="maskIdentidade form-control" autocomplete="off" inputmode="numeric" required>
+						<?php if (acesso_pelo_app()) { ?>
+						<input type="password" name="senha" id="senha-app" placeholder="Senha do app (6 números)" class="form-control" inputmode="numeric" maxlength="6" autocomplete="current-password" required style="margin-top:10px;">
+						<div class="checkbox checkbox-primary" style="margin:12px 0 4px 20px;">
+							<input type="checkbox" id="lembrar-app" checked>
+							<label for="lembrar-app">Manter conectado neste aparelho</label>
+						</div>
+						<p class="text-muted" style="font-size:12px;">Ainda não tem senha? Crie no sistema dentro da OM, no botão "Senha do app", ou peça ao furriel.</p>
+						<?php } ?>
 						<button type="submit" class="btn btn-block btn-primary active">Acessar <span class="fa fa-lock"></span></button>
 					</form>
 					<div style="padding-top: 15px;" class="login-help">
@@ -76,3 +87,9 @@
 				</div>
 			</div>
 		</div>
+<?php if (acesso_pelo_app()) { ?>
+<script>
+	// Pelo app, quem não está logado já cai direto no login.
+	document.addEventListener('DOMContentLoaded', function () { if (window.jQuery) { jQuery('#login-modal').modal('show'); } });
+</script>
+<?php } ?>

@@ -385,3 +385,18 @@ footer p {
     right : 0;
     top : 0;
 }
+
+/* Celular (até 767px): brasão pequeno ao lado dos botões, em vez de ocupar a primeira tela inteira,
+   e os botões alinhados com o resto do conteúdo (sem encostar nas bordas). */
+@media (max-width: 767px) {
+  body { height: auto; }
+  .container { margin-top: 10px; }
+  .lateral { display: flex; align-items: center; margin: 0 0 15px; }
+  .lateral > img { width: 72px !important; height: auto; padding-bottom: 0 !important; margin: 0 15px 0 0; flex: 0 0 auto; }
+  .lateral > .list-group { flex: 1 1 auto; margin: 0; }
+  .titulo-celular { margin: 0 0 15px; font-size: 20px; }
+  /* Calendários do arranchamento: dias maiores, mais fáceis de tocar com o dedo. */
+  .datepicker.datepicker-inline { width: 100%; }
+  .datepicker-inline table { width: 100%; }
+  .datepicker-inline table tr td, .datepicker-inline table tr th { height: 40px; font-size: 15px; }
+}

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>App do Arranchamento — 53º BIS</title>
+	<meta name="theme-color" content="#2f5f2f">
+	<link rel="icon" type="image/png" href="/assets/img/app-192.png">
+	<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+	<!-- Página para baixar e compartilhar o app. Fica em /app/ no site interno e no endereço do app.
+	     Na instalação: troque SEU-ENDERECO.ts.net pelo endereço público do app (2 lugares), gere o
+	     qrcode.png apontando para https://SEU-ENDERECO.ts.net/app/ e coloque o APK como
+	     arranchamento-53bis.apk (o APK e o QR code não ficam no repositório). -->
+	<style>
+		:root { --verde: #2f5f2f; --verde-escuro: #234723; --fundo: #f1f4f0; --texto: #263326; --suave: #5b6b5b; }
+		* { box-sizing: border-box; }
+		body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--fundo); color: var(--texto); line-height: 1.5; }
+		.topo { background: var(--verde); color: #fff; text-align: center; padding: 28px 16px 64px; }
+		.topo img { width: 84px; height: 84px; border-radius: 50%; background: #fff; padding: 8px; box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+		.topo h1 { font-size: 24px; margin: 12px 0 2px; }
+		.topo p { margin: 0; opacity: .85; font-size: 14px; }
+		main { max-width: 560px; margin: -44px auto 0; padding: 0 16px 32px; }
+		.cartao { background: #fff; border-radius: 14px; box-shadow: 0 6px 22px rgba(0,0,0,.10); padding: 20px; margin-bottom: 16px; }
+		.cartao h2 { font-size: 18px; margin: 0 0 12px; }
+		.botao { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 52px; border-radius: 10px; border: 0;
+			font-size: 17px; font-weight: 600; text-decoration: none; cursor: pointer; margin-top: 10px; padding: 10px 14px; }
+		.botao svg { width: 22px; height: 22px; flex: 0 0 auto; }
+		.baixar { background: var(--verde); color: #fff; }
+		.baixar:hover { background: var(--verde-escuro); }
+		.whatsapp { background: #25d366; color: #fff; }
+		.secundario { background: #fff; color: var(--verde); border: 1px solid #c9d6c9; }
+		.detalhe { font-size: 13px; color: var(--suave); text-align: center; margin: 8px 0 0; }
+		.qr { display: flex; gap: 16px; align-items: center; }
+		.qr img { width: 128px; height: 128px; border: 1px solid #e3e9e3; border-radius: 10px; flex: 0 0 auto; }
+		.qr p { margin: 0; font-size: 14px; color: var(--suave); }
+		ol { margin: 0; padding-left: 22px; }
+		ol li { margin-bottom: 12px; }
+		.aviso { background: #fcf8e3; border: 1px solid #f0e1a8; color: #6d5a1e; border-radius: 10px; padding: 10px 12px; font-size: 14px; margin-top: 6px; }
+		.caixa { background: #eef4ee; border-radius: 10px; padding: 10px 12px; font-size: 14px; margin-top: 6px; }
+		details { border-top: 1px solid #e3e9e3; padding: 10px 0; }
+		details:first-of-type { border-top: 0; }
+		summary { font-weight: 600; cursor: pointer; }
+		.iphone { display: none; }
+		.e-iphone .iphone { display: block; }
+		.e-iphone .so-android { display: none; }
+		.rodape { text-align: center; font-size: 12px; color: #8a978a; }
+		#copiado { visibility: hidden; color: var(--verde); font-size: 13px; text-align: center; margin: 6px 0 0; }
+	</style>
+</head>
+<body>
+	<header class="topo">
+		<img src="/assets/img/app-192.png" alt="Brasão do 53º BIS">
+		<h1>App do Arranchamento</h1>
+		<p>53º Batalhão de Infantaria de Selva</p>
+	</header>
+
+	<main>
+		<!-- Baixar -->
+		<section class="cartao so-android">
+			<h2>Android</h2>
+			<a class="botao baixar" href="arranchamento-53bis.apk" download>
+				<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3a1 1 0 0 1 1 1v9.59l3.3-3.3a1 1 0 1 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.42L11 13.59V4a1 1 0 0 1 1-1zM5 19a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H6a1 1 0 0 1-1-1z"/></svg>
+				Baixar o app (Android)
+			</a>
+			<p class="detalhe">Arquivo: arranchamento-53bis.apk · 1,6 MB · versão 1.0</p>
+		</section>
+
+		<section class="cartao iphone">
+			<h2>iPhone</h2>
+			<ol>
+				<li>Abra <strong>https://SEU-ENDERECO.ts.net</strong> no <strong>Safari</strong>.</li>
+				<li>Toque em <strong>Compartilhar</strong> (quadrado com seta para cima).</li>
+				<li>Toque em <strong>Adicionar à Tela de Início</strong> e depois em <strong>Adicionar</strong>.</li>
+			</ol>
+			<p class="detalhe">No iPhone não existe arquivo para instalar: o ícone na tela de início funciona como app.</p>
+		</section>
+
+		<!-- Compartilhar -->
+		<section class="cartao">
+			<h2>Compartilhar com os militares da OM</h2>
+			<a class="botao whatsapp" id="btn-whatsapp" href="#" target="_blank" rel="noopener">
+				<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2a9.9 9.9 0 0 0-8.5 15l-1.43 5.2 5.33-1.4A9.9 9.9 0 1 0 12.04 2zm0 18.1a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.16.83.84-3.08-.2-.32a8.2 8.2 0 1 1 7 3.9zm4.5-6.15c-.25-.12-1.46-.72-1.69-.8-.23-.08-.39-.12-.55.12-.16.25-.63.8-.78.97-.14.16-.29.18-.53.06a6.7 6.7 0 0 1-3.32-2.9c-.25-.43.25-.4.71-1.33.08-.16.04-.3-.02-.43-.06-.12-.55-1.33-.76-1.82-.2-.48-.4-.41-.55-.42h-.47a.9.9 0 0 0-.65.3 2.73 2.73 0 0 0-.85 2.03 4.74 4.74 0 0 0 1 2.52 10.86 10.86 0 0 0 4.16 3.68c1.55.67 2.16.73 2.94.61.47-.07 1.46-.6 1.66-1.17.21-.58.21-1.07.15-1.17-.06-.11-.22-.17-.47-.29z"/></svg>
+				Enviar pelo WhatsApp
+			</a>
+			<button type="button" class="botao secundario" id="btn-compartilhar" hidden>
+				<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 16a3 3 0 0 0-2.4 1.2l-6.7-3.4a3 3 0 0 0 0-1.6l6.7-3.4A3 3 0 1 0 15 7l-6.7 3.4a3 3 0 1 0 0 3.2L15 17a3 3 0 1 0 3-1z"/></svg>
+				Compartilhar (outros apps)
+			</button>
+			<button type="button" class="botao secundario" id="btn-copiar">
+				<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16h-9V7h9v14z"/></svg>
+				Copiar o link
+			</button>
+			<p id="copiado">Link copiado!</p>
+			<div class="qr" style="margin-top:14px;">
+				<img src="qrcode.png" alt="QR code para esta página">
+				<p>Ou aponte a câmera do celular para este QR code: ele abre esta página para baixar o app.</p>
+			</div>
+		</section>
+
+		<!-- Instalar -->
+		<section class="cartao so-android">
+			<h2>Como instalar no Android</h2>
+			<ol>
+				<li>Toque em <strong>Baixar o app</strong>. Se o navegador avisar que o arquivo "pode ser perigoso", toque em <strong>Baixar assim mesmo</strong>.</li>
+				<li>Abra o arquivo baixado (pela notificação ou em <strong>Arquivos → Downloads</strong>).</li>
+				<li>Toque em <strong>Instalar</strong>. Se o celular bloquear, veja abaixo como liberar.</li>
+				<li>Abra o app <strong>Arranchamento</strong> e entre com o <strong>CPF</strong> e a <strong>senha do app</strong>.</li>
+			</ol>
+			<div class="aviso">O app é do próprio 53º BIS e não está na Play Store, por isso o celular avisa. Instale só o arquivo baixado <strong>desta página</strong>.</div>
+		</section>
+
+		<section class="cartao so-android">
+			<h2>O celular bloqueou? Veja como liberar</h2>
+			<details>
+				<summary>"Não tem permissão para instalar apps desta fonte"</summary>
+				<p>Toque em <strong>Configurações</strong> na mensagem, ative <strong>Permitir desta fonte</strong> (ou "Permitir apps desconhecidos"), volte e toque em <strong>Instalar</strong>. Depois de instalar, se quiser, desative de novo.</p>
+			</details>
+			<details>
+				<summary>Play Protect: "App bloqueado" ou "App não verificado"</summary>
+				<p>Toque em <strong>Mais detalhes</strong> e depois em <strong>Instalar assim mesmo</strong>. Se perguntar se deseja enviar o app para análise, pode tocar em <strong>Não enviar</strong>.</p>
+			</details>
+			<details>
+				<summary>Samsung: "Bloqueio automático" (Auto Blocker)</summary>
+				<p>Esse modo de segurança impede qualquer app de fora da loja. Vá em <strong>Configurações → Segurança e privacidade → Bloqueio automático</strong> (ou "Proteção máxima"), desative, instale o app e depois pode ativar de novo. O app continua funcionando.</p>
+			</details>
+			<details>
+				<summary>Xiaomi / Redmi / Poco</summary>
+				<p>O celular pode pedir para esperar alguns segundos antes de liberar o botão <strong>Instalar</strong>, ou pedir login na conta Mi. Aguarde e confirme. Em alguns modelos: <strong>Configurações → Privacidade → Instalar apps desconhecidos</strong>.</p>
+			</details>
+			<details>
+				<summary>"Pacote inválido" ou "Não foi possível instalar"</summary>
+				<p>O download não terminou ou já existe uma versão diferente instalada. Baixe de novo por esta página; se continuar, desinstale o app antigo e instale outra vez.</p>
+			</details>
+		</section>
+
+		<!-- Primeiro acesso -->
+		<section class="cartao">
+			<h2>Primeiro acesso</h2>
+			<div class="caixa">
+				A <strong>senha do app</strong> (6 números) é criada no sistema de arranchamento <strong>dentro da OM</strong>: entre com o CPF, toque em <strong>Senha do app</strong> e crie. Esqueceu? Peça ao <strong>furriel da sua Cia</strong> para zerar e crie outra.
+			</div>
+		</section>
+
+		<p class="rodape">Sistema de Arranchamento · 53º BIS</p>
+	</main>
+
+	<script>
+		(function () {
+			var pagina = 'https://SEU-ENDERECO.ts.net/app/';
+			var texto = 'App do Arranchamento do 53º BIS: baixe e instale por aqui ' + pagina;
+			if (/iphone|ipad|ipod/i.test(navigator.userAgent)) { document.body.classList.add('e-iphone'); }
+			document.getElementById('btn-whatsapp').href = 'https://wa.me/?text=' + encodeURIComponent(texto);
+			var btnComp = document.getElementById('btn-compartilhar');
+			if (navigator.share) {
+				btnComp.hidden = false;
+				btnComp.addEventListener('click', function () {
+					navigator.share({ title: 'App do Arranchamento — 53º BIS', text: 'Baixe o app do arranchamento:', url: pagina }).catch(function () {});
+				});
+			}
+			document.getElementById('btn-copiar').addEventListener('click', function () {
+				var ok = function () { var c = document.getElementById('copiado'); c.style.visibility = 'visible'; setTimeout(function () { c.style.visibility = 'hidden'; }, 2500); };
+				if (navigator.clipboard && window.isSecureContext) {
+					navigator.clipboard.writeText(pagina).then(ok, function () { window.prompt('Copie o link:', pagina); });
+				} else {
+					window.prompt('Copie o link:', pagina);
+				}
+			});
+		})();
+	</script>
+</body>
+</html>

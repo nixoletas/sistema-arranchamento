@@ -1,0 +1,100 @@
+/* Aparência do app (acesso pelo endereço do app / APK). Só é carregado quando body tem .modo-app. */
+:root {
+	--app-verde: #2f5f2f;
+	--app-verde-escuro: #234723;
+	--app-fundo: #f1f4f0;
+	--app-texto: #263326;
+}
+
+body.modo-app { background: var(--app-fundo); color: var(--app-texto); height: auto; -webkit-tap-highlight-color: transparent; }
+.modo-app .app-conteudo hr { display: none; }
+
+/* ---------- Tela de entrada ---------- */
+.app-login {
+	min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+	background: linear-gradient(180deg, var(--app-verde) 0, var(--app-verde) 290px, var(--app-fundo) 290px);
+	padding: 0 16px 24px;
+}
+.app-login-topo { text-align: center; color: #fff; padding: 36px 0 26px; }
+.app-login-topo img { width: 92px; height: auto; background: #fff; border-radius: 50%; padding: 10px; box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+.app-login-topo h1 { font-size: 26px; font-weight: 700; margin: 14px 0 4px; letter-spacing: .3px; }
+.app-login-topo p { margin: 0; font-size: 14px; opacity: .85; }
+
+.app-login-cartao {
+	width: 100%; max-width: 420px; background: #fff; border-radius: 14px;
+	box-shadow: 0 8px 28px rgba(0,0,0,.12); padding: 22px 20px 18px;
+}
+.app-login-cartao h2 { font-size: 20px; font-weight: 700; margin: 0 0 16px; }
+.app-login-cartao label { font-weight: 600; font-size: 14px; margin: 10px 0 6px; display: block; }
+.app-login-cartao .form-control {
+	height: 50px; font-size: 18px; border-radius: 10px; border: 1px solid #cfd8cf; box-shadow: none; padding: 10px 14px;
+}
+.app-login-cartao .form-control:focus { border-color: var(--app-verde); box-shadow: 0 0 0 3px rgba(47,95,47,.15); }
+.app-senha { position: relative; }
+.app-senha .form-control { padding-right: 52px; letter-spacing: 3px; }
+.app-ver-senha {
+	position: absolute; right: 4px; top: 4px; width: 42px; height: 42px; border: 0; background: transparent;
+	color: #6b786b; font-size: 18px;
+}
+.app-lembrar { margin: 16px 0 18px 22px; }
+.app-lembrar label { font-weight: 400; margin: 0; display: inline-block; }
+.app-btn-entrar {
+	height: 52px; font-size: 18px; font-weight: 600; border-radius: 10px; border: 0;
+	background: var(--app-verde); color: #fff;
+}
+.app-btn-entrar:hover, .app-btn-entrar:focus, .app-btn-entrar:active { background: var(--app-verde-escuro); color: #fff; }
+#box-login .alert { margin: 14px 0 0; border-radius: 10px; font-size: 14px; }
+#form-login .help-block { color: #a94442; font-size: 13px; margin: 4px 0 0; }
+.app-ajuda {
+	display: flex; gap: 10px; margin-top: 18px; padding: 12px; border-radius: 10px;
+	background: #eef4ee; color: #3d5a3d; font-size: 13px; line-height: 1.45;
+}
+.app-ajuda .fa-circle-info { margin-top: 2px; }
+.app-login-rodape { margin: 18px 0 0; font-size: 12px; color: #8a978a; }
+
+/* ---------- Barra do topo (logado) ---------- */
+.app-barra {
+	position: sticky; top: 0; z-index: 1000; display: flex; align-items: center; gap: 12px;
+	background: var(--app-verde); color: #fff; padding: 10px 14px; box-shadow: 0 2px 10px rgba(0,0,0,.2);
+}
+.app-barra img { width: 40px; height: auto; background: #fff; border-radius: 50%; padding: 4px; }
+.app-barra-texto { flex: 1; min-width: 0; line-height: 1.25; }
+.app-barra-texto strong { display: block; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.app-barra-texto span { display: block; font-size: 12px; opacity: .85; }
+.app-sair {
+	color: #fff; border: 1px solid rgba(255,255,255,.45); border-radius: 8px; padding: 7px 10px; font-size: 13px; white-space: nowrap;
+}
+.app-sair:hover, .app-sair:focus { color: #fff; text-decoration: none; background: rgba(255,255,255,.12); }
+
+.modo-app .app-conteudo { margin-top: 12px; padding-left: 12px; padding-right: 12px; }
+.modo-app .app-conteudo > .row { margin-left: -6px; margin-right: -6px; }
+.modo-app .app-conteudo > .row > .col-xs-12 { padding-left: 6px; padding-right: 6px; }
+
+/* Os dados do militar já estão na barra do topo. */
+.modo-app #dados-militar { display: none; }
+
+/* Cartões mais "de app" */
+.modo-app .well, .modo-app .panel, .modo-app .alert { border-radius: 12px; }
+.modo-app .well { background: #fff; border-color: #dfe6df; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+.modo-app .panel { border-color: #dfe6df; box-shadow: 0 1px 4px rgba(0,0,0,.06); overflow: hidden; }
+.modo-app .panel-primary { border-color: var(--app-verde); }
+.modo-app .panel-primary > .panel-heading { background: var(--app-verde); border-color: var(--app-verde); }
+.modo-app #resumo-semana { font-size: 15px; }
+.modo-app #regras-prazo { font-size: 13px; line-height: 1.5; background: #eef4ee; border-color: #d3e2d3; color: #3d5a3d; }
+.modo-app #semana-salvar { background: var(--app-verde); border-color: var(--app-verde); }
+.modo-app .tabela-semana .linha-semana td { background: #eef4ee; color: var(--app-verde); border-top-color: #cfe0cf; }
+.modo-app .tabela-semana td.celula-ref input { accent-color: var(--app-verde); }
+.modo-app #caixa-app #btn-instalar-app, .modo-app #caixa-app #dica-ios { display: none !important; }
+.modo-app #dias-arranchado-list .list-group-item:first-child { border-top-left-radius: 10px; border-top-right-radius: 10px; }
+.modo-app #dias-arranchado-list .list-group-item:last-child { border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; }
+
+.app-senha .form-control::placeholder { letter-spacing: normal; }
+
+/* No app, a ação principal vem primeiro: resumo da semana e "Arranchar por semana"; explicações depois. */
+.modo-app .app-conteudo > .row > .col-xs-12 { display: flex; flex-direction: column; }
+.modo-app #resumo-semana { order: -2; }
+.modo-app #painel-semana { order: -1; }
+.modo-app #regras-prazo, .modo-app #caixa-app { margin-bottom: 14px; }
+
+/* Caixa "Manter conectado" na cor do app (tema de checkbox do style.css). */
+.modo-app .checkbox-primary input[type="checkbox"]:checked + label::before { background-color: var(--app-verde); border-color: var(--app-verde); }

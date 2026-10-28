@@ -3,7 +3,7 @@ session_start();
 require_once("config/conexao.php");
 include "../rancho/controllers/auditoria.php";
 
-$identidade = $_SESSION['auth']['usuario_logado']['ident_militar'];
+$identidade = $_SESSION['auth']['usuario_logado']['ident_militar'] ?? null;
 
 //captura data atual
 $newDate =  isset($_POST['data']) ? $_POST['data'] : null;
@@ -60,6 +60,16 @@ if($newDate && $tipo){
 	$res = $con->fetch(PDO::FETCH_ASSOC);
 	$total = $con->rowCount();
 
+	// O aparelho diz o que quer ("arranchar" ou "desarranchar"). Se outro aparelho ou o furriel já deixou
+	// o dia assim, não inverte (isso desfaria a mudança): só avisa, e a tela se atualiza.
+	$acao = $_POST['acao'] ?? '';
+	if (($acao === 'arranchar' && $total) || ($acao === 'desarranchar' && !$total)) {
+		echo json_encode(['ja_estava' => true, 'msg' => $acao === 'arranchar'
+			? 'Esse dia já estava arranchado (feito em outro aparelho ou pelo furriel). A tela foi atualizada.'
+			: 'Esse dia já estava desarranchado (feito em outro aparelho ou pelo furriel). A tela foi atualizada.'], JSON_UNESCAPED_UNICODE);
+		die();
+	}
+
 	if($total){
 		if($res['data'] == $newDate){
 
@@ -83,7 +93,19 @@ if($newDate && $tipo){
 		}
 	}
 
-	$con = $cnt->prepare("INSERT INTO registros (data, tp, ident_militar) VALUES (:newDate, :tipo, :identidade)");
+	// Dia bloqueado pelo aprovisionamento ("Bloquear dias"): o servidor também confere, não só o calendário.
+	require_once __DIR__ . "/regras-arranchamento.php";
+	$conMil = $cnt->prepare("SELECT om_id, posto FROM cad_militar WHERE ident_militar = :ident LIMIT 1");
+	$conMil->execute([':ident' => $identidade]);
+	if ($mil = $conMil->fetch(PDO::FETCH_ASSOC)) {
+		$bloq = regra_bloqueios($cnt, $mil['om_id'], $mil['posto']);
+		if (isset($bloq[$newDate][(int)$tipo])) {
+			echo json_encode(['error' => 'Dia bloqueado: ' . $bloq[$newDate][(int)$tipo]], JSON_UNESCAPED_UNICODE);
+			die();
+		}
+	}
+
+	$con = $cnt->prepare("INSERT IGNORE INTO registros (data, tp, ident_militar) VALUES (:newDate, :tipo, :identidade)");
 	$con->bindValue(':identidade', $identidade, PDO::PARAM_STR);
 	$con->bindValue(':tipo', $tipo, PDO::PARAM_INT);
 	$con->bindValue(':newDate', $newDate, PDO::PARAM_STR);

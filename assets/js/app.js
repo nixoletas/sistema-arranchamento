@@ -116,7 +116,7 @@ $(function() {
                 type: "POST",
                 dataType: "json",
                 url: "controllers/autentica.php",
-                data: { identidade: $i },
+                data: { identidade: $i, senha: $('#senha-app').val() || '', lembrar: $('#lembrar-app').is(':checked') ? 1 : '' },
                 success: function(data) {
                     if (data.erro) {
                         $('#box-login').html(data.erro);
@@ -223,7 +223,7 @@ $(function() {
 
                 if (vaiDesarranchar) {
                     if (!desarranchamentoPermitido(dataClicada)) {
-                        window.alert('Não é mais possível desarranchar esse dia — o prazo já passou.');
+                        avisar('Não é mais possível desarranchar esse dia — o prazo já passou.', 'aviso');
                         return;
                     }
                     const dataFormatada = e.format(0, "dd/mm/yyyy");
@@ -237,7 +237,8 @@ $(function() {
 
                 const refeicaoNome = selector === '#cafe-container' ? 'cafe' : selector === '#almoco-container' ? 'almoco' : 'jantar';
                 const tipoRefeicao = selector === '#cafe-container' ? '1' : selector === '#almoco-container' ? '2' : '3';
-                const dadosEnvio = { data: dataClicada, tipo: tipoRefeicao };
+                // Diz ao servidor o que quer (e não "inverta"): se outro aparelho já mudou o dia, nada é desfeito.
+                const dadosEnvio = { data: dataClicada, tipo: tipoRefeicao, acao: vaiDesarranchar ? 'desarranchar' : 'arranchar' };
 
                 $.ajax({
                     type: "POST",
@@ -247,7 +248,10 @@ $(function() {
                     success: function(data) {
                         if (data.error) {
                             esconderCarregando();
-                            window.alert(data.error);
+                            avisar(data.error, 'erro');
+                        }
+                        if (data.ja_estava) {
+                            avisar(data.msg, 'info');
                         }
                         // Recarrega para refletir o estado real do servidor
                         window.location.href = `index.php?pasta=home&pagina=inicio&refeicao=${refeicaoNome}`;
@@ -257,7 +261,7 @@ $(function() {
                         // repetir automaticamente poderia desfazer uma gravação que na verdade deu certo.
                         // Recarrega para mostrar o estado real e o usuário decide se precisa clicar de novo.
                         esconderCarregando();
-                        window.alert('Não foi possível confirmar se salvou. Verificando o estado atual...');
+                        avisar('Não foi possível confirmar se salvou. Verificando o estado atual...', 'erro');
                         window.location.href = `index.php?pasta=home&pagina=inicio&refeicao=${refeicaoNome}`;
                     }
                 });
@@ -314,6 +318,10 @@ $(function() {
                 const iconeHoje = item.data.toDateString() === hoje.toDateString() ? '<i class="fa-solid fa-calendar-week"></i> ' : '';
                 lista.append('<li class="list-group-item ' + classe + '"><strong>' + diaTexto + '</strong>' + ' <i class="fa-solid fa-arrow-right"></i> ' + iconeHoje + item.refeicao.toUpperCase() + '</li>');
             });
+
+            if (!diasOrdenados.length) {
+                lista.append('<li class="list-group-item text-muted text-center">Você ainda não tem refeições arranchadas.</li>');
+            }
         };
 
         atualizarListaDiasArranchados();

@@ -1,5 +1,11 @@
 <?php
 session_start();
+
+// Relatório de militares de outras OM: só o Administrador (é ele quem vê essa opção na tela).
+if (empty($_SESSION['usuario']['id']) || (int)($_SESSION['usuario']['tipo'] ?? 0) !== 1) {
+	http_response_code(401);
+	exit('Acesso negado. Faça login novamente.');
+}
 require_once('../../assets/TCPDF/tcpdf.php');
 require_once("../../controllers/config/conexao.php");
 
@@ -217,6 +223,6 @@ $tbBody ="
 $page = $thead.$tbody.$tbhead.$tbBody;
 
 $pdf->writeHTMLCell($w = 0, $h = 0, $x = '', $y = '', $page, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = 'top', $autopadding = true);
-$pdf->Output($file, 'D');
+$pdf->Output($file, 'I');
 
 ?>

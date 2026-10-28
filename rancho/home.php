@@ -34,6 +34,7 @@ if (!empty($_SESSION['usuario']['id']) && is_numeric($_SESSION['usuario']['id'])
 <head>
 	<title>Adm | Dashboard</title>
 	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="icon" type="image/png" href="assets/img/logo_arranchamento.png">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 	<link rel='stylesheet' href='../assets/css/bootstrap.css'>
@@ -62,6 +63,26 @@ h1, h2, h3, h4, h5, h6 {
 	.cards-admin .panel { width: 100%; margin-bottom: 0; display: flex; flex-direction: column; }
 	.cards-admin .panel-heading { flex: 1 1 auto; min-height: 118px; }
 	.cards-admin .panel > a { display: block; }
+	.caixa-usuario { margin-left: 15px; margin-right: 15px; }
+	.caixa-usuario p { margin-bottom: 6px; }
+
+	/* Celular: dois cartões por linha, todos com a mesma largura, ícone menor ao lado do nome. */
+	@media (max-width: 767px) {
+		.cards-admin > [class*="col-"] { width: 50%; padding-left: 7px; padding-right: 7px; margin-bottom: 14px; }
+		.cards-admin { margin-left: 8px; margin-right: 8px; }
+		.cards-admin .panel-heading { min-height: 96px; padding: 10px; }
+		.cards-admin .panel-heading .row { display: flex; align-items: center; margin: 0; }
+		.cards-admin .panel-heading .row > [class*="col-"] { width: auto; padding: 0; }
+		.cards-admin .panel-heading .row > .text-right { flex: 1 1 auto; padding-left: 8px; }
+		.cards-admin .fa-5x { font-size: 36px; }
+		.cards-admin .announcement-heading { margin: 0; font-size: 13px; line-height: 1.3; }
+		.cards-admin .announcement-text { margin: 0; font-size: 13px; line-height: 1.3; }
+		.cards-admin .panel-footer { padding: 8px 10px; }
+		h2.text-center { font-size: 24px; margin-top: 10px; }
+		/* Tabelas largas dentro das janelas rolam para o lado, sem empurrar a janela para fora da tela. */
+		.modal-body .dataTables_wrapper, .modal-body .tabela-rolavel { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+		.modal-body .dataTables_wrapper .dataTables_filter input { width: 160px; }
+	}
 
 	/* Caixas de marcar nos campos de seleção múltipla.
 	   bootstrap-select (Relatórios: Cia e P/G; Arranchar: Militares): troca o "✓" pequeno à direita por uma caixa à esquerda. */
@@ -92,19 +113,54 @@ h1, h2, h3, h4, h5, h6 {
 	}
 	.select2-caixas .select2-results__option--highlighted[aria-selected] { background-color: #d6e6f7; color: #333; }
 	.acoes-multipla { font-size: 12px; margin-top: 4px; }
+	/* select2 sem nada marcado: o texto de ajuda ("Selecione as Cias") ocupa a largura toda, sem ficar cortado. */
+	.select2-selection--multiple .select2-selection__rendered > .select2-search--inline:only-child { width: 100%; }
+	.select2-selection--multiple .select2-search--inline:only-child .select2-search__field { width: 100% !important; }
+
+	/* "Marcar todos / Desmarcar todos" do bootstrap-select: dois botões lado a lado que cabem na largura da lista. */
+	.bootstrap-select .dropdown-menu { min-width: 100%; }
+	.bootstrap-select .bs-actionsbox { padding: 6px 8px; margin-bottom: 4px; border-bottom: 1px solid #e5e5e5; }
+	.bootstrap-select .bs-actionsbox .btn-group { display: flex; width: 100%; }
+	.bootstrap-select .bs-actionsbox .btn-group button {
+		flex: 1 1 0; width: auto; float: none; min-width: 0; margin: 0;
+		padding: 4px 6px; font-size: 12px; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+		color: #337ab7; background: #f5f8fc; border: 1px solid #c9d8ea;
+	}
+	.bootstrap-select .bs-actionsbox .btn-group button + button { margin-left: 6px; }
+	.bootstrap-select .bs-actionsbox .btn-group button,
+	.bootstrap-select .bs-actionsbox .btn-group button:first-child,
+	.bootstrap-select .bs-actionsbox .btn-group button:last-child { border-radius: 3px; }
+	.bootstrap-select .bs-actionsbox .btn-group button:hover,
+	.bootstrap-select .bs-actionsbox .btn-group button:focus { background: #e3edf8; border-color: #9fbbdc; color: #23527c; outline: none; }
+
+	/* Filtros das tabelas de Gerenciar: cabem nas colunas estreitas sem cortar o "Filtrar". */
+	thead th.pesquisa .form-control { padding: 4px 3px; font-size: 12px; min-width: 0; }
+	.tbl td:nth-child(4) { white-space: nowrap; } /* CPF numa linha só */
+
+	/* Arranchar: resultados da busca de militar */
+	.busca-militar-caixa { position: relative; }
+	.busca-resultados { display: none; position: absolute; left: 15px; right: 15px; z-index: 30; max-height: 240px; overflow-y: auto;
+		margin: 2px 0 0; box-shadow: 0 6px 16px rgba(0,0,0,.15); }
+	.busca-resultados .list-group-item { padding: 7px 10px; }
+
+	/* Relatórios */
+	.form-relatorio .form-group { margin-bottom: 12px; }
+	.form-relatorio .checkbox { padding-top: 7px; }
+	.form-relatorio .bootstrap-select.disabled > .btn { background: #f2f2f2; }
 </style>
 
 <body>
 	<div class="container">
 		<div class="row">
 			<h2 class="text-center" style="padding-bottom: 10px;"> ADMINISTRAÇÃO </h2>
-			<div style="width: 100%;" class="well well-sm">
+			<div class="well well-sm caixa-usuario">
 				<p><b>Usuário:</b> <?php print_r($usuario_logado['usuario']); ?></p>
 				<p><b>Cia:</b> <?php print_r($usuario_logado['companhia_desc']); ?></p>
 				<p><b>Perfil:</b> <?php if ($usuario_logado['tipo'] == 1) {
 										echo "Administrador";
 									} else echo "Operador"; ?></p>
-				<a style="text-decoration: none;color:#ffffff;box-shadow: 6px 8px 7px -5px #276873;background-color:#0000006E;padding:5px 5px;border-radius:10px;" href="logout.php" title="Sair">Sair <i class="fa fa-sign-out"></i></a>
+				<a class="btn btn-default btn-sm" href="logout.php" title="Sair">Sair <i class="fa fa-sign-out"></i></a>
+				<a class="btn btn-success btn-sm" href="/app/" target="_blank" rel="noopener" title="Página para baixar o app e compartilhar pelo WhatsApp"><i class="fa-solid fa-mobile-screen-button"></i> App do militar (baixar/compartilhar)</a>
 			</div>
 		</div>
 		<hr>
@@ -407,6 +463,7 @@ miltares de Outra OM ------------------------------------ -->
 </body>
 <script src='../assets/js/jquery.js'></script>
 <script src='../assets/js/bootstrap.js'></script>
+<script src='../assets/js/avisos.js?v=<?php echo (int)@filemtime(__DIR__ . '/../assets/js/avisos.js'); ?>'></script>
 <script src='../assets/js/mask.js'></script>
 <script src='../assets/js/jquery.validate-1.15.0.js'></script>
 <script src='../assets/bootstrap-datepicker/dist/js/bootstrap-datepicker.js'></script>

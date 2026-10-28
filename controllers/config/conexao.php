@@ -28,4 +28,8 @@ try{
 	throw new PDOException($e);
 }
 
+// Acesso pelo app (porta 8081 / Tailscale Funnel): sessão só vale se entrou com senha; "manter conectado".
+require_once __DIR__ . '/../acesso-app.php';
+app_verificar_sessao($cnt);
+
 ?>

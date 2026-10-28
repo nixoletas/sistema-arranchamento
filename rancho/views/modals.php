@@ -81,10 +81,11 @@
 								<div style='padding-top:4px;font-weight:bold;' class="charNum"></div>
 							</div>
 						</div>
-						<center><button type="button" id="btnRegra" class="btn btn-success active">Criar Regra <span class="fa fa-check-square-o"></span></button></center>
+						<center><button type="button" id="btnRegra" class="btn btn-success active">Criar Regra <span class="fa-regular fa-square-check"></span></button></center>
 					</form>
 					<hr>
 					<div style="display:block;padding-bottom:5px;" class="msg-status text-center"></div>
+					<div class="tabela-rolavel">
 					<table style="padding-top:10px;text-align:center;" width="100%" cellspacing="0" id="tbl-regras" class="table text-center table-compact table-condensed table-hover tb">
 						<thead>
 							<tr class="alert alert-info"> 
@@ -122,6 +123,7 @@
 							</tbody>
 						</table>
 					</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -156,20 +158,20 @@
 						-->
 						<?php } ?>
 						
-						<form class="form-horizontal" method="POST">
+						<form class="form-horizontal form-relatorio" method="POST" onsubmit="return false;">
 							<h5 class="text-center text-success"><b>Arranchados</b></h5>
 							<div class="form-group">
-								<label class="col-sm-2 control-label">Data: </label>
-								<div class="col-sm-4">
+								<label class="col-sm-3 control-label" for="data_ard">Data:</label>
+								<div class="col-sm-5">
 									<div class="input-group">
-										<input type="text" id="data_ard" class="form-control dt-relatorio"><span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+										<input type="text" id="data_ard" class="form-control dt-relatorio" autocomplete="off"><span class="input-group-addon"><i class="fa fa-calendar"></i></span>
 									</div>
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-2 control-label">Cia: </label>
-								<div class="col-sm-6">
-									<select style="width: 100%;" data-selected-text-format="count" data-actions-box="true" multiple class="selectpicker form-control" name="om_ard" id="om_ard">
+								<label class="col-sm-3 control-label" for="om_ard">Cia:</label>
+								<div class="col-sm-7">
+									<select data-width="100%" data-size="8" data-selected-text-format="count > 2" data-count-selected-text="{0} Cias selecionadas" data-actions-box="true" data-select-all-text="Marcar todas" data-deselect-all-text="Desmarcar todas" title="Selecione a Cia" multiple class="selectpicker form-control" name="om_ard" id="om_ard">
 										<?php
 										if($usuario_logado['tipo'] == 1){
 											$con = $cnt->prepare("SELECT * FROM cad_cia WHERE id != 100");
@@ -181,56 +183,55 @@
 											?>
 											<option <?php echo "value='".$result['id']."'"; ?>><?php echo $result['nome']; ?></option>
 											<?php } ?>
-										</select>
-									</div>
+									</select>
 								</div>
-								<div class="form-group">
-									<label class="col-sm-2 control-label">P/G: </label>
-									<div class="col-sm-5">
-										<select style="width:100%;" data-selected-text-format="count" data-actions-box="true" multiple class="selectpicker form-control" name="pg_ard" id="pg_ard">
-											<?php
-											if($usuario_logado['tipo'] == 1 ){
-												$con = $cnt->prepare("SELECT id, nome FROM cad_posto ORDER BY ordem ASC");
-											}else {
-												$con = $cnt->prepare("SELECT id, nome FROM cad_posto ORDER BY ordem ASC");
-											}
-											$con->execute();
-											while ($result = $con->fetch(PDO::FETCH_ASSOC)){ 
-												?>
-												<option <?php echo "value='".$result['id']."'"; ?>><?php echo $result['nome']; ?></option>
-												<?php } ?>
-											</select>
-										</div>
-									</div>
-									<?php if($usuario_logado['tipo'] == 1){ ?>
-										<div class="form-group">
-											<label class="col-sm-2 control-label">Opção: </label>
-											<div class="col-sm-5">
-												<label class="checkbox-inline"><input type="checkbox" id="outrasOm" name="outrasOm" value="true">Outras OMs</label>
-											</div>
-										</div>
-									<?php } ?>
-								<!--
-								<div class="form-group">
-									<label class="col-sm-2 control-label">Refeição: </label>
-									<div class="col-sm-7">
-										<label class="radio-inline">
-											<input type="radio" name="tpRefeicao" class="refeicao-rel" id="tpRefeicao_cafe" value="1"> Café
-										</label>
-										<label class="radio-inline">
-											<input type="radio" name="tpRefeicao" class="refeicao-rel" id="tpRefeicao_almoco" value="2" checked> Almoço
-										</label>
-										<label class="radio-inline">
-											<input type="radio" name="tpRefeicao" class="refeicao-rel" id="tpRefeicao_jantar" value="3"> Jantar
-										</label>
-									</div>
-								</div>
-								-->
 							</div>
-							<center><button type="button" id="btnGerar-ard" class="btn btn-success">Gerar <i class="fa fa-download"></i> </button></center>
+							<div class="form-group">
+								<label class="col-sm-3 control-label" for="pg_ard">P/G:</label>
+								<div class="col-sm-7">
+									<select data-width="100%" data-size="8" data-selected-text-format="count > 3" data-count-selected-text="{0} P/G selecionados" data-actions-box="true" data-select-all-text="Marcar todos" data-deselect-all-text="Desmarcar todos" title="Selecione o P/G" multiple class="selectpicker form-control" name="pg_ard" id="pg_ard">
+										<?php
+										$con = $cnt->prepare("SELECT id, nome FROM cad_posto ORDER BY ordem ASC");
+										$con->execute();
+										while ($result = $con->fetch(PDO::FETCH_ASSOC)){ 
+											?>
+											<option <?php echo "value='".$result['id']."'"; ?>><?php echo $result['nome']; ?></option>
+											<?php } ?>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">Ordem:</label>
+								<div class="col-sm-7">
+									<div class="radio radio-primary" style="margin-top:7px;">
+										<input type="radio" name="ordem_ard" id="ordem-nome" class="ordem-rel" value="nome" checked>
+										<label for="ordem-nome">P/G e nome de guerra</label>
+									</div>
+									<div class="radio radio-primary">
+										<input type="radio" name="ordem_ard" id="ordem-antiguidade" class="ordem-rel" value="antiguidade">
+										<label for="ordem-antiguidade">P/G e, entre os SD, antiguidade (ano de incorporação)</label>
+									</div>
+								</div>
+							</div>
+							<?php if($usuario_logado['tipo'] == 1){ ?>
+								<div class="form-group">
+									<label class="col-sm-3 control-label">Opção:</label>
+									<div class="col-sm-7">
+										<div class="checkbox checkbox-primary">
+											<input type="checkbox" id="outrasOm" name="outrasOm" value="true">
+											<label for="outrasOm">Outras OMs</label>
+											<span class="help-block" style="margin:2px 0 0;font-size:12px;">Lista os militares de outras OM arranchados na data. Não usa Cia nem P/G.</span>
+										</div>
+									</div>
+								</div>
+							<?php } ?>
+							<div id="rel-aviso" class="alert alert-warning" style="display:none;margin:0 0 15px;padding:8px 12px;"></div>
+							<div class="text-center">
+								<button type="button" id="btnGerar-ard" class="btn btn-success">Gerar <i class="fa fa-download"></i></button>
+							</div>
 						</form>
-						<hr>
 					</div>
+				</div>
 				</div>
 			</div>
 		</div>
@@ -252,7 +253,7 @@
 									</div>
 								</div>
 								<div class="modal-footer">
-									<button type="button" id="btnSalvar-aviso" class="btn btn-success">Salvar <i class="fa fa-floppy-o"></i> </button>
+									<button type="button" id="btnSalvar-aviso" class="btn btn-success">Salvar <i class="fa-regular fa-floppy-disk"></i> </button>
 								</div>
 							</form>
 						</div>
@@ -335,7 +336,7 @@
 											</div>
 										</div>
 										<div class="modal-footer">
-											<button type="button" id="btnSave-OutraOm" class="btn btn-success">Salvar <i class="fa fa-floppy-o"></i> </button>
+											<button type="button" id="btnSave-OutraOm" class="btn btn-success">Salvar <i class="fa-regular fa-floppy-disk"></i> </button>
 										</div>
 									</form>
 								</div>
@@ -353,6 +354,14 @@
 								</div>
 								<div class="modal-body">
 									<form class="form-horizontal" method="POST" id="form-arranchar">
+										<div class="form-group">
+											<label class="col-sm-3 control-label" for="busca-militar">Buscar: </label>
+											<div class="col-sm-7 busca-militar-caixa">
+												<input type="search" id="busca-militar" class="form-control" placeholder="Nome de guerra, nome ou CPF" autocomplete="off">
+												<div id="busca-militar-resultados" class="list-group busca-resultados"></div>
+												<span class="help-block" style="font-size:12px;margin-bottom:0;">Toque no militar para incluir. Ou escolha por Cia e P/G abaixo.</span>
+											</div>
+										</div>
 										<div class="form-group">
 											<label class="col-sm-3 control-label">Cia: </label>
 											<div class="col-sm-7">
@@ -430,7 +439,8 @@
 													</div>
 												</div>
 												<div class="modal-footer">
-													<button type="button" id="btnSave-arranchar" class="btn btn-success">Arranchar <i class="fa fa-floppy-o"></i> </button>
+													<button type="button" id="btnAbrirCopiarSemana" class="btn btn-default pull-left"><i class="fa-regular fa-copy"></i> Copiar semana anterior</button>
+													<button type="button" id="btnSave-arranchar" class="btn btn-success">Arranchar <i class="fa-regular fa-floppy-disk"></i> </button>
 													<button type="button" id="btnDesarranchar-arranchar" class="btn btn-danger">Desarranchar <i class="fa fa-trash"></i> </button>
 												</div>
 											</form>
@@ -460,7 +470,7 @@
 													</div>
 												</div>
 												<div class="modal-footer">
-													<button type="submit" id="btn-senha" class="btn btn-success">Salvar <i class="fa fa-floppy-o"></i> </button>
+													<button type="submit" id="btn-senha" class="btn btn-success">Salvar <i class="fa-regular fa-floppy-disk"></i> </button>
 												</div>
 											</form>
 										</div>
@@ -484,6 +494,7 @@
 														<th style="text-align:center;">Nome</th>
 														<th style="text-align:center;">CPF</th>
 														<th style="text-align:center;">Cia</th>
+														<th style="text-align:center;">Ano incorp.</th>
 														<th style="text-align:center;">Opções</th>
 													</tr>
 													<tr id="filtro"> 
@@ -492,8 +503,8 @@
 														<th style="text-align:center;" class="pesquisa">Nome</th>
 														<th style="text-align:center;" class="pesquisa">CPF</th>
 														<th style="text-align:center;" class="pesquisa">Cia</th>
+														<th style="text-align:center;" class="pesquisa">Ano incorp.</th>
 														<th style="text-align:center;">
-															<input type="text" style="width:60%;" readonly placeholder="Opções" class="text-center form-control input-sm">
 														</th>
 													</tr>
 												</thead>
@@ -570,8 +581,16 @@
 																</select>
 															</div>
 														</div>
+														<div class="form-group" id="grupo-incorporacao" style="display:none;">
+															<label class="col-sm-3 control-label" for="ano_incorporacao">Ano de incorporação: </label>
+															<div class="col-sm-5">
+																<input type="number" name="ano_incorporacao" id="ano_incorporacao" class="form-control" min="1950" max="<?php echo date('Y'); ?>" step="1" inputmode="numeric" placeholder="Ex.: <?php echo date('Y'); ?>">
+																<span class="help-block" style="margin-bottom:0;font-size:12px;">Só para SD: ano em que a turma incorporou, usado para ordenar os soldados por antiguidade no relatório. Pode ficar em branco.</span>
+															</div>
+														</div>
 														<div class="modal-footer">
-															<button type="submit" id="btn-salvarMil" class="btn btn-success">Salvar<i class="fa fa-floppy-o"></i> </button>
+															<button type="button" id="btn-zerar-senha-app" class="btn btn-default pull-left" style="display:none;" title="O militar esqueceu a senha do app"><i class="fa-solid fa-key"></i> Zerar senha do app</button>
+															<button type="submit" id="btn-salvarMil" class="btn btn-success">Salvar<i class="fa-regular fa-floppy-disk"></i> </button>
 														</div>
 													</form>
 												</div>
@@ -604,7 +623,6 @@
 																	<th class="pesquisa" style="text-align:center;">Cia</th>
 																	<th class="pesquisa" style="text-align:center;">Tipo</th>
 																	<th style="text-align:center;">
-																		<input type="text" style="width:60%;" readonly placeholder="Opções" class="text-center form-control input-sm">
 																	</th>
 																</tr>
 															</thead>
@@ -676,7 +694,7 @@
 																	</div>
 																</div>
 																<div class="modal-footer">
-																	<button type="submit" id="btn-salvarUsuario" class="btn btn-success">Salvar <i class="fa fa-floppy-o"></i> </button>
+																	<button type="submit" id="btn-salvarUsuario" class="btn btn-success">Salvar <i class="fa-regular fa-floppy-disk"></i> </button>
 																</div>
 															</form>
 														</div>
@@ -705,7 +723,6 @@
 																			<th class="pesquisa" style="text-align:center;">Sigla</th>
 																			<th class="pesquisa" style="text-align:center;">Descrição</th>
 																			<th style="text-align:center;">
-																				<input type="text" style="width:60%;" readonly placeholder="Opções" class="text-center form-control input-sm">
 																			</th>
 																		</tr>
 																	</thead>
@@ -743,7 +760,7 @@
 																	</div>
 																</div>
 																<div class="modal-footer">
-																	<button type="submit" id="btn-salvarOrganizacao" class="btn btn-success">Salvar <i class="fa fa-floppy-o"></i> </button>
+																	<button type="submit" id="btn-salvarOrganizacao" class="btn btn-success">Salvar <i class="fa-regular fa-floppy-disk"></i> </button>
 																</div>
 															</form>
 														</div>
@@ -753,3 +770,66 @@
 											<?php } ?>
 											<div id="divLoading"></div>
 
+<?php
+	// Semanas que dá para preencher: a atual (só os dias que faltam) e as duas seguintes.
+	$segundaAtual = date('Y-m-d', strtotime('monday this week'));
+	$semanasCopia = [];
+	for ($i = 0; $i < 3; $i++) {
+		$seg = date('Y-m-d', strtotime($segundaAtual . ' +' . (7 * $i) . ' days'));
+		$semanasCopia[$seg] = ($i === 0 ? 'Esta semana' : ($i === 1 ? 'Próxima semana' : 'Daqui a 2 semanas'))
+			. ' (' . date('d/m', strtotime($seg)) . ' a ' . date('d/m', strtotime($seg . ' +6 days')) . ')';
+	}
+?>
+<div class="modal fade" tabindex="-1" role="dialog" id="modalCopiarSemana">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Copiar semana anterior <i class="fa-regular fa-copy"></i></h4>
+			</div>
+			<div class="modal-body">
+				<p class="text-muted" style="font-size:13px;">
+					Repete na semana escolhida os arranchamentos da semana anterior, para os militares da Cia.
+					Não apaga nada: só cria o que falta. Dias que já passaram e dias bloqueados ficam de fora.
+				</p>
+				<form class="form-horizontal" onsubmit="return false;">
+					<div class="form-group">
+						<label class="col-sm-3 control-label" for="copia-om">Cia:</label>
+						<div class="col-sm-7">
+							<select class="form-control" id="copia-om">
+								<?php
+								if ($usuario_logado['tipo'] == 1) {
+									$con = $cnt->prepare("SELECT id, nome FROM cad_cia WHERE id < 100 ORDER BY nome");
+									echo '<option value="">- Selecione -</option>';
+								} else {
+									$con = $cnt->prepare("SELECT id, nome FROM cad_cia WHERE id = " . (int)$usuario_logado['om']);
+								}
+								$con->execute();
+								while ($result = $con->fetch(PDO::FETCH_ASSOC)) {
+									echo '<option value="' . (int)$result['id'] . '">' . htmlspecialchars($result['nome']) . '</option>';
+								}
+								?>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label" for="copia-semana">Preencher:</label>
+						<div class="col-sm-7">
+							<select class="form-control" id="copia-semana">
+								<?php $i = 0; foreach ($semanasCopia as $seg => $rotulo) { ?>
+									<option value="<?php echo $seg; ?>"<?php echo $i++ === 1 ? ' selected' : ''; ?>><?php echo $rotulo; ?></option>
+								<?php } ?>
+							</select>
+							<span class="help-block" style="font-size:12px;margin-bottom:0;" id="copia-origem"></span>
+						</div>
+					</div>
+				</form>
+				<div id="copia-previa"></div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" id="btnPreviaCopia"><i class="fa fa-eye"></i> Ver prévia</button>
+				<button type="button" class="btn btn-success" id="btnCopiarSemana" disabled><i class="fa-regular fa-copy"></i> Copiar</button>
+			</div>
+		</div>
+	</div>
+</div>

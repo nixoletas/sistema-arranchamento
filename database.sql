@@ -105,6 +105,7 @@ CREATE TABLE `cad_militar` (
   `ident_militar` varchar(200) NOT NULL,
   `posto` int(11) NOT NULL,
   `om_id` int(11) NOT NULL,
+  `ano_incorporacao` smallint DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `ident_militar` (`ident_militar`)
 ) ENGINE=InnoDB AUTO_INCREMENT=553 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -210,7 +211,8 @@ CREATE TABLE `registros` (
   `data` date NOT NULL,
   `tp` varchar(10) NOT NULL,
   `ident_militar` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_registro_militar` (`ident_militar`,`data`,`tp`)
 ) ENGINE=InnoDB AUTO_INCREMENT=58323 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -385,3 +387,21 @@ SELECT * FROM (
   SELECT 18, 18, 'PEIXE CONGELADO FILÉ', 0.460, 'Kg', 'refeicao'
 ) novos
 WHERE NOT EXISTS (SELECT 1 FROM `vale_artigos`);
+
+-- Senha do app do militar (acesso de fora da OM pelo Tailscale Funnel) e "manter conectado".
+CREATE TABLE IF NOT EXISTS `militar_acesso` (
+  `ident_militar` varchar(200) NOT NULL,
+  `senha_hash` varchar(255) DEFAULT NULL,
+  `senha_criada_em` datetime DEFAULT NULL,
+  `tentativas` int NOT NULL DEFAULT 0,
+  `bloqueado_ate` datetime DEFAULT NULL,
+  PRIMARY KEY (`ident_militar`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `militar_token` (
+  `token_hash` char(64) NOT NULL,
+  `ident_militar` varchar(200) NOT NULL,
+  `expira` datetime NOT NULL,
+  PRIMARY KEY (`token_hash`),
+  KEY `ident_militar` (`ident_militar`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

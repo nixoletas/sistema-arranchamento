@@ -49,6 +49,27 @@ if (isset($_POST['opt']) && !empty($_POST['opt'])) {
 }
 
 
+// Zerar a senha do app (o militar esqueceu): ele cria outra no site dentro da OM.
+if (($_POST['opt'] ?? '') === 'zerar_senha_app') {
+	$con = $cnt->prepare("SELECT ident_militar FROM cad_militar WHERE id = :id" . ($so_propria_cia ? " AND om_id = :om_usuario" : ""));
+	$con->bindValue(':id', (int)($_POST['id'] ?? 0), PDO::PARAM_INT);
+	if ($so_propria_cia) {
+		$con->bindValue(':om_usuario', $om_usuario, PDO::PARAM_INT);
+	}
+	$con->execute();
+	$ident = $con->fetchColumn();
+	if (!$ident) {
+		echo '{"error":"Militar não encontrado na sua Cia."}';
+		die();
+	}
+	require_once "../../controllers/acesso-app.php";
+	app_zerar_senha($cnt, $ident);
+	include_once "auditoria.php";
+	auditoria('ZERAR_SENHA_APP', (int)$_POST['id'], $cnt, $_SESSION['usuario']['id']);
+	echo '{"msg":"Senha do app zerada. O militar cria outra no site dentro da OM."}';
+	die();
+}
+
 //atualizado -------
 
 // ... (seu código anterior) ...
@@ -63,6 +84,7 @@ if (isset($_POST['opt']) && !empty($_POST['opt'])) {
 				mil.nome,
 				mil.nome_guerra,
 				mil.ident_militar,
+				mil.ano_incorporacao,
 				posto.nome as posto,
 				posto.id as posto_id,
 				om.nome as om,
@@ -81,6 +103,7 @@ if (isset($_POST['opt']) && !empty($_POST['opt'])) {
 				mil.nome,
 				mil.nome_guerra,
 				mil.ident_militar,
+				mil.ano_incorporacao,
 				posto.nome as posto,
 				posto.id as posto_id,
 				om.nome as om,
@@ -105,6 +128,7 @@ if (isset($_POST['opt']) && !empty($_POST['opt'])) {
 				"nome_guerra" => $result['nome_guerra'],
 				"nome" => $result['nome'],
 				"ident_militar" => $result['ident_militar'],
+				"ano_incorporacao" => $result['ano_incorporacao'] ?? '',
 				"posto_nome" => $result['posto'],
 				"posto_id" => $result['posto_id'],
 				"om_nome" => $result['om'],
@@ -157,6 +181,23 @@ if (isset($_POST['formData']) && !empty($_POST['formData'])) {
 		die();
 	}
 
+	// Ano de incorporação: só para SD (a turma entra toda no mesmo dia), opcional. Usado para ordenar
+	// os soldados por antiguidade no relatório. Para os demais P/G não é guardado.
+	$ano_incorporacao = null;
+	$ano_txt = trim($dados['ano_incorporacao'] ?? '');
+	if ($ano_txt !== '') {
+		if (!preg_match('/^\d{4}$/', $ano_txt) || (int)$ano_txt < 1950 || (int)$ano_txt > (int)date('Y')) {
+			echo '{"error":"Ano de incorporação inválido!"}';
+			die();
+		}
+		$ano_incorporacao = (int)$ano_txt;
+	}
+	$con_sd = $cnt->prepare("SELECT id FROM cad_posto WHERE nome = 'SD' LIMIT 1");
+	$con_sd->execute();
+	if ((int)$dados['pg_militar'] !== (int)$con_sd->fetchColumn()) {
+		$ano_incorporacao = null;
+	}
+
 	switch ($dados['opt']) {
 		case 'add':
 		$con = $cnt->prepare("SELECT id FROM cad_militar WHERE ident_militar = :identidade");
@@ -170,12 +211,13 @@ if (isset($_POST['formData']) && !empty($_POST['formData'])) {
 		}
 
 		if(!$total){
-			$con = $cnt->prepare('INSERT INTO cad_militar (nome, nome_guerra, ident_militar, posto, om_id) VALUES (:nome_mil, :nome_guerra, :identidade, :pg_militar, :om_id)');
+			$con = $cnt->prepare('INSERT INTO cad_militar (nome, nome_guerra, ident_militar, posto, om_id, ano_incorporacao) VALUES (:nome_mil, :nome_guerra, :identidade, :pg_militar, :om_id, :ano_incorporacao)');
 			$con->bindValue(':nome_mil', $dados['nome_mil'] , PDO::PARAM_STR);
 			$con->bindValue(':nome_guerra', $dados['nome_guerra'], PDO::PARAM_STR);
 			$con->bindValue(':identidade',  $dados['identidade'], PDO::PARAM_STR);
 			$con->bindValue(':pg_militar', $dados['pg_militar'], PDO::PARAM_INT);
 			$con->bindValue(':om_id', $dados['om_militar'], PDO::PARAM_INT);
+			$con->bindValue(':ano_incorporacao', $ano_incorporacao, $ano_incorporacao === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
 			$con->execute();
 			if($con){
 				echo '{"msg":"Cadastro realizado com sucesso!"}';
@@ -187,7 +229,7 @@ if (isset($_POST['formData']) && !empty($_POST['formData'])) {
 		break;
 
 		case 'edit':
-		$con = $cnt->prepare("UPDATE cad_militar SET nome = :nome_mil, nome_guerra = :nome_guerra, ident_militar = :identidade, posto = :pg_militar, om_id = :om_id WHERE id = :id_mil"
+		$con = $cnt->prepare("UPDATE cad_militar SET nome = :nome_mil, nome_guerra = :nome_guerra, ident_militar = :identidade, posto = :pg_militar, om_id = :om_id, ano_incorporacao = :ano_incorporacao WHERE id = :id_mil"
 			. ($so_propria_cia ? " AND om_id = :om_usuario" : ""));
 		$con->bindValue(':id_mil', $dados['id_mil'] , PDO::PARAM_INT);
 		if ($so_propria_cia) {
@@ -198,6 +240,7 @@ if (isset($_POST['formData']) && !empty($_POST['formData'])) {
 		$con->bindValue(':identidade',  $dados['identidade'], PDO::PARAM_STR);
 		$con->bindValue(':pg_militar', $dados['pg_militar'], PDO::PARAM_INT);
 		$con->bindValue(':om_id', $dados['om_militar'], PDO::PARAM_INT);
+		$con->bindValue(':ano_incorporacao', $ano_incorporacao, $ano_incorporacao === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
 		$con->execute();
 		if($con){
 			echo '{"msg":"Atualização realizada com sucesso!"}';

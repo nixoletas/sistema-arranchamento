@@ -24,6 +24,39 @@ if ((int)($_SESSION['usuario']['tipo'] ?? 0) !== 1) {
 	$om = (int)$_SESSION['usuario']['om'];
 }
 
+// Busca por nome de guerra, nome ou CPF (campo "Buscar militar" da janela Arranchar). Devolve JSON.
+if (isset($_POST['busca'])) {
+	header('Content-Type: application/json; charset=utf-8');
+	$termo = trim((string)$_POST['busca']);
+	if (mb_strlen($termo, 'UTF-8') < 2) {
+		echo '[]';
+		exit;
+	}
+	$restrito = (int)($_SESSION['usuario']['tipo'] ?? 0) !== 1;
+	$like = '%' . addcslashes($termo, '%_\\') . '%';
+	$digitos = preg_replace('/\D/', '', $termo);
+	$sql = "SELECT mil.ident_militar, mil.nome_guerra, posto.nome AS posto, om.nome AS cia
+		FROM cad_militar mil
+		JOIN cad_posto posto ON posto.id = mil.posto
+		JOIN cad_cia om ON om.id = mil.om_id
+		WHERE (mil.nome_guerra LIKE :t1 OR mil.nome LIKE :t2"
+		. (strlen($digitos) >= 3 ? " OR REPLACE(REPLACE(mil.ident_militar, '.', ''), '-', '') LIKE :dig" : "") . ")"
+		. ($restrito ? " AND mil.om_id = :om" : "")
+		. " ORDER BY posto.ordem, mil.nome_guerra LIMIT 15";
+	$con = $cnt->prepare($sql);
+	$con->bindValue(':t1', $like);
+	$con->bindValue(':t2', $like);
+	if (strlen($digitos) >= 3) {
+		$con->bindValue(':dig', '%' . $digitos . '%');
+	}
+	if ($restrito) {
+		$con->bindValue(':om', $om, PDO::PARAM_INT);
+	}
+	$con->execute();
+	echo json_encode($con->fetchAll(PDO::FETCH_ASSOC), JSON_UNESCAPED_UNICODE);
+	exit;
+}
+
 $con = $cnt->prepare("SELECT nome_guerra, ident_militar FROM cad_militar WHERE om_id = :om AND posto = :posto ORDER BY nome_guerra ASC");
 $con->bindValue(':om', $om, PDO::PARAM_INT);
 $con->bindValue(':posto', $posto, PDO::PARAM_INT);

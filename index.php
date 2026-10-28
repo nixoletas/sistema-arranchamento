@@ -31,7 +31,7 @@ if(!empty($_SESSION['auth']['usuario_logado']['id']) && is_numeric($_SESSION['au
 		unset($usuario_logado);
 	}
 
-	if($_SERVER['QUERY_STRING']==""){
+	if(($_SERVER['QUERY_STRING'] ?? '') == ""){
 		header("Location: index.php?pasta=home&pagina=inicio");
 	}
 }

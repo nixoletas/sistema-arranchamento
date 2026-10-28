@@ -61,6 +61,17 @@ try {
         )
     );
 
+    // O Operador (furriel) só arrancha/desarrancha militares da própria Cia.
+    if ((int)($_SESSION['usuario']['tipo'] ?? 0) !== 1 && count($militares) > 0) {
+        $marcas = implode(',', array_fill(0, count($militares), '?'));
+        $daCia = $cnt->prepare("SELECT ident_militar FROM cad_militar WHERE om_id = ? AND ident_militar IN ($marcas)");
+        $daCia->execute(array_merge([(int)$_SESSION['usuario']['om']], $militares));
+        $permitidos = $daCia->fetchAll(PDO::FETCH_COLUMN);
+        if (count($permitidos) !== count($militares)) {
+            responder('error', 'Você só pode arranchar ou desarranchar militares da sua Cia!');
+        }
+    }
+
     if (count($militares) === 0) {
         responder('error', 'Selecione pelo menos um militar!');
     }
