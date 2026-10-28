@@ -9,6 +9,8 @@ services:
       - .:/var/www/html
       # Entrada do app (porta 8081, só parte do militar, exige senha): docker/acesso-app.conf
       - ./docker/acesso-app.conf:/etc/apache2/conf-enabled/acesso-app.conf:ro
+      # Endurecimento do PHP (cookie HttpOnly/SameSite, sessão estrita, sem versão no cabeçalho)
+      - ./docker/seguranca-php.ini:/usr/local/etc/php/conf.d/zz-seguranca.ini:ro
     ports:
       - "8080:80"
       # Porta do app só no próprio servidor (testes); o Tailscale chega nela pela rede interna do Docker.

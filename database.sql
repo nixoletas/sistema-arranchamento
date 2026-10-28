@@ -212,7 +212,8 @@ CREATE TABLE `registros` (
   `tp` varchar(10) NOT NULL,
   `ident_militar` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_registro_militar` (`ident_militar`,`data`,`tp`)
+  UNIQUE KEY `uk_registro_militar` (`ident_militar`,`data`,`tp`),
+  KEY `idx_registros_data` (`data`,`tp`)
 ) ENGINE=InnoDB AUTO_INCREMENT=58323 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
